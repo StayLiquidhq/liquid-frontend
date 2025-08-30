@@ -18,7 +18,7 @@ const SavingsPage = () => {
           />
         </div>
       </header>
-      <main className="w-full max-w-sm mx-auto mt-4 flex flex-col items-center">
+      <main className="w-full max-w-sm mx-auto mt-4 flex flex-col items-start">
         <div className="relative w-full h-[172px] py-[30px] px-6 flex flex-col justify-between items-start bg-[#1E1E1E] rounded-[30px] overflow-hidden">
           <Image
             src="/white-3d-coin.svg"
@@ -49,6 +49,49 @@ const SavingsPage = () => {
           <button className="flex-shrink-0 px-6 py-8  flex items-center justify-center bg-[#1E1E1E] rounded-4xl">
             <Image src="/Break.svg" alt="Break Icon" width={27} height={27} />
           </button>
+        </div>
+        <div className="w-full flex items-center ml-4 gap-2 mt-8 mb-4">
+          <Image src="/Time.svg" alt="History" width={24} height={24} />
+          <span className="text-lg">Transaction History</span>
+        </div>
+        <div className="w-full flex flex-col items-start gap-[15px] self-stretch p-[15px] bg-[#1E1E1E] rounded-[30px]">
+          <div className="flex items-start gap-3">
+            <button className="px-4 py-2 bg-[#242424] rounded-full text-sm">All</button>
+            <button className="px-4 py-2 bg-transparent rounded-full text-sm text-gray-400">Out</button>
+            <button className="px-4 py-2 bg-transparent rounded-full text-sm text-gray-400">In</button>
+          </div>
+          <div className="w-full flex flex-col items-start gap-3 self-stretch">
+            <div className="w-full flex justify-between items-center px-3 py-[18px] bg-[#242424] rounded-[15px]">
+              <div className="flex flex-col items-start">
+                <span className="text-sm">Received</span>
+                <span className="text-xl font-medium">+$500</span>
+              </div>
+              <div className="flex flex-col items-end text-xs text-gray-400">
+                <span>≈ 500USDC from</span>
+                <span>EPwlk2uuQhXkg3...Sfn</span>
+              </div>
+            </div>
+            <div className="w-full flex justify-between items-center px-3 py-[18px] bg-[#242424] rounded-[15px]">
+              <div className="flex flex-col items-start">
+                <span className="text-sm">Sent</span>
+                <span className="text-xl font-medium">-$200</span>
+              </div>
+              <div className="flex flex-col items-end text-xs text-gray-400">
+                <span>≈ 200USDC to</span>
+                <span>EPwlk2uuQhXkg3...Sfn</span>
+              </div>
+            </div>
+            <div className="w-full flex justify-between items-center px-3 py-[18px] bg-[#242424] rounded-[15px]">
+              <div className="flex flex-col items-start">
+                <span className="text-sm">Sent</span>
+                <span className="text-xl font-medium">-$20</span>
+              </div>
+              <div className="flex flex-col items-end text-xs text-gray-400">
+                <span>≈ ₦32,004 to</span>
+                <span>2271230000 - Zenith PLc</span>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>
