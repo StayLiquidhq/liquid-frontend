@@ -4,9 +4,30 @@ import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
 import { useState } from "react";
 import CreatePlan from "@/components/CreatePlan";
+import WalletCard from "@/components/WalletCard";
+import AddFunds from "@/components/AddFunds";
+import Settings from "@/components/Settings";
 
 const SavingsPage = () => {
   const [showCreatePlan, setShowCreatePlan] = useState(false);
+  const [showAddFunds, setShowAddFunds] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const walletIcons = ["/colour-open.svg", "/Lock.svg", "/colour-target.svg"];
+
+  const wallets = [
+    {
+      name: "Wallet 1",
+      balance: "$3,000.00",
+      icon: walletIcons[Math.floor(Math.random() * walletIcons.length)],
+      coinImage: "/white-3d-coin.svg",
+    },
+    {
+      name: "Wallet 2",
+      balance: "$1,500.00",
+      icon: walletIcons[Math.floor(Math.random() * walletIcons.length)],
+      coinImage: "/white-3d-coin.svg",
+    },
+  ];
 
   return (
     <>
@@ -41,38 +62,45 @@ const SavingsPage = () => {
           className="w-full max-w-sm mx-auto mt-4 flex flex-col items-start"
           variants={itemVariants}
         >
-          <motion.div
-            className="relative w-full h-[172px] py-[30px] px-6 flex flex-col justify-between items-start squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E] overflow-hidden"
-            variants={itemVariants}
-          >
-            <Image
-              src="/white-3d-coin.svg"
-              alt="3D Coin"
-              width={210}
-              height={210}
-              className="absolute  -right-4 -top-8 opacity-3"
-            />
-            <div className="relative z-10 w-full flex justify-between items-start">
-              <div className="flex items-center gap-2">
-                <Image src="/Lock.svg" alt="Lock Icon" width={18} height={18} />
-                <span className="text-sm">Wallet 1</span>
-              </div>
-              <Image src="/Eye.svg" alt="Eye Icon" width={18} height={18} />
-            </div>
-            <div className="relative z-10">
-              <h2 className="text-5xl font-medium">$3,000.00</h2>
-            </div>
-          </motion.div>
+          <div className="w-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+            {wallets.map((wallet, index) => (
+              <WalletCard
+                key={index}
+                name={wallet.name}
+                balance={wallet.balance}
+                icon={wallet.icon}
+                coinImage={wallet.coinImage}
+                isLast={index === wallets.length - 1}
+              />
+            ))}
+            <motion.div
+              className="relative w-full h-[172px] py-[30px] px-6 flex flex-col justify-center items-center squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E] overflow-hidden flex-shrink-0 snap-center"
+              variants={itemVariants}
+              style={{ width: "100%" }}
+              onClick={() => setShowCreatePlan(true)}
+            >
+              <Image
+                src="/vault.svg"
+                alt="Add Vault Icon"
+                width={40}
+                height={40}
+              />
+              <span className="text-lg mt-2">Add Vault</span>
+            </motion.div>
+          </div>
           <motion.div
             className="w-full flex items-start gap-3 self-stretch mt-4"
             variants={itemVariants}
           >
-            <button className="flex-grow flex items-center justify-center gap-2 px-6 py-8 text-white squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]">
+            <button
+              onClick={() => setShowAddFunds(true)}
+              className="flex-grow flex items-center justify-center gap-2 px-6 py-8 text-white squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]"
+            >
               <Image src="/in.svg" alt="Receive Icon" width={29} height={29} />
               <span className="text-lg">Receive</span>
             </button>
             <button
-              onClick={() => setShowCreatePlan(true)}
+              onClick={() => setShowSettings(true)}
               className="flex-shrink-0 px-6 py-8  flex items-center justify-center squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]"
             >
               <Image src="/setting.svg" alt="Settings Icon" width={27} height={27} />
@@ -144,6 +172,26 @@ const SavingsPage = () => {
         >
           <div className="mb-4" onClick={(e) => e.stopPropagation()}>
             <CreatePlan />
+          </div>
+        </div>
+      )}
+      {showAddFunds && (
+        <div
+          className="absolute inset-0 bg-[#00000066] flex items-end justify-center z-50"
+          onClick={() => setShowAddFunds(false)}
+        >
+          <div className="mb-4" onClick={(e) => e.stopPropagation()}>
+            <AddFunds onClose={() => setShowAddFunds(false)} />
+          </div>
+        </div>
+      )}
+      {showSettings && (
+        <div
+          className="absolute inset-0 bg-[#00000066] flex items-end justify-center z-50"
+          onClick={() => setShowSettings(false)}
+        >
+          <div className="mb-4" onClick={(e) => e.stopPropagation()}>
+            <Settings onClose={() => setShowSettings(false)} />
           </div>
         </div>
       )}
