@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const CreatePlan = () => {
   return (
-    <div className="flex w-[327px] p-6 flex-col items-start gap-[18px] squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
+    <div className="flex w-[380px] p-6 flex-col items-start gap-[18px] squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
       <h2 className="text-2xl font-medium">Create a vault</h2>
 
       <div className="flex p-3 items-start gap-[10px] self-stretch squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
