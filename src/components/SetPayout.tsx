@@ -16,12 +16,9 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="flex w-[380px] p-6 flex-col items-start gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white max-h-[80vh] overflow-y-auto scrollbar-hide">
+    <div className="flex w-[380px] p-6 flex-col items-start gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white max-h-[90vh] overflow-y-auto scrollbar-hide">
       <div className="w-full flex justify-between items-center">
         <h2 className="text-xl font-medium">Set Payout</h2>
-        <button onClick={onClose}>
-          <Image src="/close.svg" alt="Close" width={24} height={24} />
-        </button>
       </div>
 
       <div className="w-full flex flex-col gap-2">

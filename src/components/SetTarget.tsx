@@ -27,7 +27,7 @@ const SetTarget: React.FC<SetTargetProps> = ({ onClose }) => {
       <div className="w-full flex gap-2">
         <button
           onClick={() => setTargetType("amount")}
-          className={`flex-1 p-2 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] ${
+          className={`flex-1 p-2 squircle squircle-[18px] squircle-smooth-xl bg-[#252525] ${
             targetType === "amount" ? "opacity-100" : "opacity-50"
           }`}
         >
@@ -35,7 +35,7 @@ const SetTarget: React.FC<SetTargetProps> = ({ onClose }) => {
         </button>
         <button
           onClick={() => setTargetType("date")}
-          className={`flex-1 p-2 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]  ${
+          className={`flex-1 p-2 squircle squircle-[18px] squircle-smooth-xl bg-[#252525] ${
             targetType === "date" ? "opacity-100" : "opacity-50"
           }`}
         >
@@ -77,7 +77,7 @@ const SetTarget: React.FC<SetTargetProps> = ({ onClose }) => {
                 className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white"
               />
               <Image
-                src="/Calendar.svg"
+                src="/calendar.svg"
                 alt="Calendar"
                 width={24}
                 height={24}
