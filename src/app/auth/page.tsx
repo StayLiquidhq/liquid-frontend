@@ -74,7 +74,7 @@ const AuthPage = () => {
       </motion.div>
       <div className="hidden md:flex bg-[#1A1A1A] min-h-screen flex-col items-center justify-center text-white">
         <h1 className="text-4xl font-medium">
-          Desktop mobile is not available for this application
+          Desktop mode is not available for this application
         </h1>
       </div>
     </>
