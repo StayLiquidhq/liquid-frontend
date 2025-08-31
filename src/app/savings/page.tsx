@@ -138,8 +138,11 @@ const SavingsPage = () => {
         </h1>
       </div>
       {showCreatePlan && (
-        <div className="absolute inset-0 bg-[#00000066]  flex items-end justify-center z-50">
-          <div className="mb-4">
+        <div
+          className="absolute inset-0 bg-[#00000066]  flex items-end justify-center z-50"
+          onClick={() => setShowCreatePlan(false)}
+        >
+          <div className="mb-4" onClick={(e) => e.stopPropagation()}>
             <CreatePlan />
           </div>
         </div>
