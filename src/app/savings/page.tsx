@@ -139,7 +139,9 @@ const SavingsPage = () => {
       </div>
       {showCreatePlan && (
         <div className="absolute inset-0 bg-[#00000066]  flex items-end justify-center z-50">
-          <CreatePlan />
+          <div className="mb-4">
+            <CreatePlan />
+          </div>
         </div>
       )}
     </>
