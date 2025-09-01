@@ -7,11 +7,14 @@ import CreatePlan from "@/components/CreatePlan";
 import WalletCard from "@/components/WalletCard";
 import AddFunds from "@/components/AddFunds";
 import Settings from "@/components/Settings";
+import { useAuth } from "@/utils/hooks/useAuth";
 
 const SavingsPage = () => {
+  const { loading } = useAuth();
   const [showCreatePlan, setShowCreatePlan] = useState(false);
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+
   const walletIcons = ["/colour-open.svg", "/Lock.svg", "/colour-target.svg"];
 
   const wallets = [
@@ -28,6 +31,14 @@ const SavingsPage = () => {
       coinImage: "/white-3d-coin.svg",
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="bg-[#1A1A1A] min-h-screen flex flex-col items-center justify-center text-white">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <>

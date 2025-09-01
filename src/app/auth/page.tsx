@@ -56,7 +56,7 @@ const AuthPage = () => {
 
             <motion.button
               onClick={handleSignIn}
-              className="smooth-corners-md flex w-full justify-center items-center gap-4 px-6 py-6 bg-[#222222] rounded-3xl"
+              className="flex w-full justify-center items-center gap-4 px-6 py-6 squircle squircle-[18px] squircle-smooth-xl squircle-[#222222]"
               variants={itemVariants}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

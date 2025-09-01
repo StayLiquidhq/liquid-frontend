@@ -4,9 +4,20 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
 import CreatePlan from "@/components/CreatePlan";
+import { useAuth } from "@/utils/hooks/useAuth";
 
-const AuthPage = () => {
-  const [showCreatePlan, setShowCreatePlan] = useState(true);
+const AuthDetailsPage = () => {
+  const { loading } = useAuth();
+  const [showCreatePlan] = useState(true);
+
+  if (loading) {
+    return (
+      <div className="bg-[#1A1A1A] min-h-screen flex flex-col items-center justify-center text-white">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <>
       <motion.div
@@ -15,7 +26,6 @@ const AuthPage = () => {
         initial="hidden"
         animate="visible"
       >
-        
         <div className=" w-full max-w-sm mx-auto flex flex-col items-center gap-2 p-2 pt-8">
           <motion.div variants={itemVariants}>
             <Image
@@ -68,9 +78,7 @@ const AuthPage = () => {
         </h1>
       </div>
       {showCreatePlan && (
-        <div
-          className="absolute inset-0 bg-[#00000066]  flex items-end justify-center z-50"
-        >
+        <div className="absolute inset-0 bg-[#00000066]  flex items-end justify-center z-50">
           <div className="mb-4" onClick={(e) => e.stopPropagation()}>
             <CreatePlan />
           </div>
@@ -80,4 +88,4 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage;
+export default AuthDetailsPage;
