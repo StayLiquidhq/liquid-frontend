@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
 import CreatePlan from "@/components/CreatePlan";
-import { tr } from "framer-motion/client";
 
 const AuthPage = () => {
   const [showCreatePlan, setShowCreatePlan] = useState(true);
