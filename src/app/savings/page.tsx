@@ -10,7 +10,7 @@ import Settings from "@/components/Settings";
 import { useAuth } from "@/utils/hooks/useAuth";
 
 const SavingsPage = () => {
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
   const [showCreatePlan, setShowCreatePlan] = useState(false);
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
