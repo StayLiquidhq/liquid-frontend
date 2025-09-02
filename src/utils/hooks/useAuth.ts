@@ -3,28 +3,19 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { User, SupabaseClient } from "@supabase/supabase-js";
 
+// 🔹 Helper: Log signup/login events
 async function logAuthEvent(
   supabase: SupabaseClient,
   eventType: "signup" | "login"
 ) {
-  if (eventType !== "signup" && eventType !== "login") {
-    console.error('Invalid eventType. Must be "signup" or "login".');
-    return;
-  }
-
   try {
     const {
       data: { session },
       error: sessionError,
     } = await supabase.auth.getSession();
 
-    if (sessionError) {
+    if (sessionError || !session) {
       console.error("Error getting session:", sessionError);
-      return;
-    }
-
-    if (!session) {
-      console.error("No active session found. Cannot log event.");
       return;
     }
 
@@ -44,13 +35,9 @@ async function logAuthEvent(
       return;
     }
 
-    const result = await response.json();
-    console.log(`Successfully logged ${eventType} event.`, result.data);
+    console.log(`✅ Logged ${eventType} event`);
   } catch (error) {
-    console.error(
-      `An unexpected error occurred while logging ${eventType}:`,
-      error
-    );
+    console.error(`Unexpected error logging ${eventType}:`, error);
   }
 }
 
@@ -69,25 +56,20 @@ export const useAuth = () => {
       if (event === "SIGNED_IN" && session) {
         const isNewUser =
           session.user.created_at === session.user.last_sign_in_at;
+        console.log(session.user.created_at);
+        console.log(session.user.last_sign_in_at);
 
         if (isNewUser) {
           logAuthEvent(supabase, "signup");
-          const createUserProfile = async () => {
-            const response = await fetch(`${endpoint}/api/user/create`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${session.access_token}`,
-              },
-            });
 
-            if (!response.ok) {
-              const result = await response.json();
-              console.error(`API Error: ${response.status}`, result.error);
-            }
-          };
-
-          createUserProfile();
+          // 🔹 Create user profile via backend
+          fetch(`${endpoint}/api/user/create`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          }).catch((err) => console.error("Profile creation failed:", err));
         } else {
           if (!loginEventLogged) {
             logAuthEvent(supabase, "login");
@@ -101,32 +83,47 @@ export const useAuth = () => {
       }
     });
 
+    // 🔹 Check if user exists + has plan (via backend)
     const checkUser = async () => {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (session) {
-        setUser(session.user);
-        // Check if the user has a plan
-        const { data: plan, error } = await supabase
-          .from("plans")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .single();
+      if (!session) {
+        router.push("/auth");
+        setLoading(false);
+        return;
+      }
 
-        if (error && error.code !== "PGRST116") {
-          console.error("Error fetching plan:", error);
+      setUser(session.user);
+
+      try {
+        const response = await fetch(`${endpoint}/api/user/has-plan`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
+
+        if (!response.ok) {
+          const result = await response.json();
+          console.error("Error checking plan:", result.error);
+          router.push("/auth");
+          return;
         }
 
-        if (plan) {
+        const { hasPlan } = await response.json();
+
+        if (hasPlan) {
           router.push("/savings");
         } else {
           router.push("/auth/details");
         }
-      } else {
+      } catch (err) {
+        console.error("Unexpected error checking plan:", err);
         router.push("/auth");
       }
+
       setLoading(false);
     };
 
