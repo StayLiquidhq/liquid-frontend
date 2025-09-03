@@ -1,14 +1,31 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
 import CreatePlan from "@/components/CreatePlan";
 import { useAuth } from "@/utils/hooks/useAuth";
+import { logAuthEvent, checkUserPlanStatus } from "@/utils/auth/helpers";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 const AuthDetailsPage = () => {
-  const { loading } = useAuth();
-  const [showCreatePlan] = useState(true);
+  const { user, loading } = useAuth();
+  const supabase = createClient();
+  const router = useRouter();
+  const hasRun = useRef(false);
+
+  useEffect(() => {
+    if (user && !hasRun.current) {
+      hasRun.current = true;
+      logAuthEvent(supabase, "login");
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          checkUserPlanStatus(session, router);
+        }
+      });
+    }
+  }, [user, supabase, router]);
 
   if (loading) {
     return (
@@ -41,12 +58,7 @@ const AuthDetailsPage = () => {
               className="flex flex-col items-start gap-6"
               variants={itemVariants}
             >
-              <Image
-                src="/logo.svg"
-                alt="Liquid Logo"
-                width={80}
-                height={80}
-              />
+              <Image src="/logo.svg" alt="Liquid Logo" width={80} height={80} />
               <h1
                 className="text-4xl font-medium leading-tight"
                 style={{ fontFamily: "'Funnel Display', sans-serif" }}
@@ -77,7 +89,7 @@ const AuthDetailsPage = () => {
           Desktop mode is not available for this application
         </h1>
       </div>
-      {showCreatePlan && (
+      {!loading && (
         <div className="absolute inset-0 bg-[#00000066]  flex items-end justify-center z-50">
           <div className="mb-4" onClick={(e) => e.stopPropagation()}>
             <CreatePlan />

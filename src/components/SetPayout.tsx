@@ -1,13 +1,89 @@
-import Image from "next/image";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createClient } from "@/utils/supabase/client";
 
 interface SetPayoutProps {
   onClose: () => void;
+  planType: "locked" | "flexible";
 }
 
-const SetPayout: React.FC<SetPayoutProps> = ({ onClose }) => {
+const SetPayout: React.FC<SetPayoutProps> = ({ onClose, planType }) => {
   const [payoutMethod, setPayoutMethod] = useState("crypto");
+  const [receivedAmount, setReceivedAmount] = useState("");
+  const [recurrentPayout, setRecurrentPayout] = useState("");
+  const [frequency, setFrequency] = useState("Daily");
+  const [payoutTime, setPayoutTime] = useState("07:00");
+  const [walletAddress, setWalletAddress] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [bankName, setBankName] = useState("Zenith Bank PLC");
+  const [accountName, setAccountName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const supabase = createClient();
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      setError("You must be logged in to create a plan.");
+      setIsLoading(false);
+      return;
+    }
+
+    const payload: any = {
+      plan_type: planType,
+      received_amount: parseFloat(receivedAmount),
+      recurrent_payout: parseFloat(recurrentPayout),
+      frequency: frequency.toLowerCase(),
+      payout_time: payoutTime,
+      payout_method: payoutMethod,
+    };
+
+    if (payoutMethod === "crypto") {
+      if (!walletAddress) {
+        setError("Wallet address is required.");
+        setIsLoading(false);
+        return;
+      }
+      payload.payout_wallet_address = walletAddress;
+    } else {
+      if (!accountNumber || !bankName || !accountName) {
+        setError("All bank details are required.");
+        setIsLoading(false);
+        return;
+      }
+      payload.payout_account_number = accountNumber;
+      payload.bank_name = bankName;
+      payload.account_name = accountName;
+    }
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create plan.");
+      }
+
+      onClose();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const inputVariants = {
     hidden: { opacity: 0, y: -20 },
@@ -18,14 +94,21 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose }) => {
   return (
     <div className="flex w-[380px] p-6 flex-col items-start gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white max-h-[90vh] overflow-y-auto scrollbar-hide">
       <div className="w-full flex justify-between items-center">
-        <h2 className="text-xl font-medium">Set Payout</h2>
+        <h2 className="text-xl font-medium">
+          Set Payout for {planType.charAt(0).toUpperCase() + planType.slice(1)}{" "}
+          Plan
+        </h2>
       </div>
 
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+
       <div className="w-full flex flex-col gap-2">
-        <label className="text-sm text-gray-400">Received Amount</label>
+        <label className="text-sm text-gray-400">Received Amount ($)</label>
         <input
-          type="text"
-          defaultValue="$2,086.09"
+          type="number"
+          value={receivedAmount}
+          onChange={(e) => setReceivedAmount(e.target.value)}
+          placeholder="e.g., 2000"
           className="w-full p-4 text-lg squircle squircle-[#252525] squircle-[18px] squircle-smooth-xl text-white"
         />
       </div>
@@ -64,7 +147,9 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose }) => {
             </label>
             <input
               type="text"
-              defaultValue="5cfbH5yg3bn8hg67Jv...hk9t"
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+              placeholder="Enter wallet address"
               className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white font-mono"
             />
           </motion.div>
@@ -83,18 +168,31 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose }) => {
               </label>
               <input
                 type="text"
-                defaultValue="2271230000"
+                value={accountNumber}
+                onChange={(e) => setAccountNumber(e.target.value)}
+                placeholder="Enter account number"
                 className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white"
               />
             </div>
             <div className="w-full flex flex-col gap-2">
-              <label className="text-sm text-gray-400">Account Details</label>
-              <select className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white appearance-none">
+              <label className="text-sm text-gray-400">Bank Name</label>
+              <select
+                value={bankName}
+                onChange={(e) => setBankName(e.target.value)}
+                className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white appearance-none"
+              >
                 <option>Zenith Bank PLC</option>
+                <option>Guaranty Trust Bank</option>
+                <option>First Bank of Nigeria</option>
               </select>
+            </div>
+            <div className="w-full flex flex-col gap-2">
+              <label className="text-sm text-gray-400">Account Name</label>
               <input
                 type="text"
-                defaultValue="John Wick"
+                value={accountName}
+                onChange={(e) => setAccountName(e.target.value)}
+                placeholder="Enter account name"
                 className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white"
               />
             </div>
@@ -103,44 +201,45 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose }) => {
       </AnimatePresence>
 
       <div className="w-full flex flex-col gap-2">
-        <label className="text-sm text-gray-400">Recurrent Payout</label>
+        <label className="text-sm text-gray-400">Recurrent Payout ($)</label>
         <input
-          type="text"
-          defaultValue="$200"
+          type="number"
+          value={recurrentPayout}
+          onChange={(e) => setRecurrentPayout(e.target.value)}
+          placeholder="e.g., 200"
           className="w-full p-4 text-lg squircle squircle-[18px] squircle-[#252525] squircle-smooth-xl text-white"
         />
       </div>
 
-      <div className="w-full flex justify-between gap-2">
-        <button className="flex-1 p-2 squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl">
-          5%
-        </button>
-        <button className="flex-1 p-2 squircle-[#252525] squircle squircle-[18px] squircle-smooth-xl">
-          10%
-        </button>
-        <button className="flex-1 p-2 squircle-[#252525] squircle squircle-[18px] squircle-smooth-xl">
-          20%
-        </button>
-        <button className="flex-1 p-2 squircle-[#252525] squircle squircle-[18px] squircle-smooth-xl">
-          50%
-        </button>
-      </div>
-
       <div className="w-full flex flex-col gap-2">
         <label className="text-sm text-gray-400">Frequency</label>
-        <select className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none">
+        <select
+          value={frequency}
+          onChange={(e) => setFrequency(e.target.value)}
+          className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none"
+        >
           <option>Daily</option>
+          <option>Weekly</option>
+          <option>Monthly</option>
         </select>
       </div>
 
       <div className="w-full flex flex-col gap-2">
-        <select className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none">
-          <option>07:00 AM (WAT)</option>
-        </select>
+        <label className="text-sm text-gray-400">Payout Time</label>
+        <input
+          type="time"
+          value={payoutTime}
+          onChange={(e) => setPayoutTime(e.target.value)}
+          className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none"
+        />
       </div>
 
-      <button className="w-full p-4 squircle-[#0088FF]  text-white font-medium squircle squircle-[18px] squircle-smooth-xl">
-        Create
+      <button
+        onClick={handleSubmit}
+        disabled={isLoading}
+        className="w-full p-4 squircle-[#0088FF] text-white font-medium squircle squircle-[18px] squircle-smooth-xl disabled:opacity-50"
+      >
+        {isLoading ? "Creating..." : "Create"}
       </button>
     </div>
   );

@@ -1,0 +1,63 @@
+import { SupabaseClient } from "@supabase/supabase-js";
+
+// 🔹 Helper: Logs a login event by calling our API endpoint
+export async function logAuthEvent(
+  supabase: SupabaseClient,
+  eventType: "login"
+) {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) return;
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/audit_logs/login_logs`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorResult = await response.json();
+      console.error(`API Error logging ${eventType}:`, errorResult.error);
+    } else {
+      console.log(`✅ Logged ${eventType} event via API`);
+    }
+  } catch (error) {
+    console.error(`Unexpected error while logging ${eventType}:`, error);
+  }
+}
+
+// 🔹 Helper: Checks user's plan status and redirects based on the result
+export async function checkUserPlanStatus(session: any, router: any) {
+  const endpoint = process.env.NEXT_PUBLIC_BASE_URL;
+
+  try {
+    const response = await fetch(`${endpoint}/api/plans/status`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      router.push("/auth");
+      return;
+    }
+
+    const { hasPlan } = await response.json();
+
+    if (hasPlan) {
+      router.push("/savings");
+    } else {
+      router.push("/auth/details");
+    }
+  } catch (err) {
+    console.error("Error checking plan:", err);
+    router.push("/auth");
+  }
+}
