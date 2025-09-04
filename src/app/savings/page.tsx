@@ -22,6 +22,7 @@ interface Wallet {
   name: string;
   icon: string;
   coinImage: string;
+  plan_type: "locked" | "flexible" | "target";
 }
 
 const SavingsPage = () => {
@@ -81,7 +82,11 @@ const SavingsPage = () => {
     }
   };
 
-  const walletIcons = ["/colour-open.svg", "/Lock.svg", "/colour-target.svg"];
+  const iconMap = {
+    locked: "/Lock.svg",
+    flexible: "/colour-open.svg",
+    target: "/colour-target.svg",
+  };
 
   if (loading) {
     return (
@@ -133,9 +138,7 @@ const SavingsPage = () => {
                 key={index}
                 name={wallet.name}
                 balance={wallet.balance}
-                icon={
-                  walletIcons[Math.floor(Math.random() * walletIcons.length)]
-                }
+                icon={iconMap[wallet.plan_type]}
                 coinImage="/white-3d-coin.svg"
               />
             ))}
