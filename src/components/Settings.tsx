@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import EditPayout from "./EditPayout";
+import { useAuth } from "@/utils/hooks/useAuth";
 
 interface SettingsProps {
   onClose: () => void;
@@ -8,6 +9,12 @@ interface SettingsProps {
 
 const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const [showEditPayout, setShowEditPayout] = useState(false);
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    onClose();
+  };
 
   if (showEditPayout) {
     return <EditPayout onClose={() => setShowEditPayout(false)} />;
@@ -29,8 +36,10 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
             </div>
           </div>
           <div className="flex flex-col">
-            <h3 className="text-lg font-medium">Dr. John Wick</h3>
-            <p className="text-sm text-gray-400">johnnywick@gmail.com</p>
+            <h3 className="text-lg font-medium">
+              {user?.user_metadata?.full_name || "User"}
+            </h3>
+            <p className="text-sm text-gray-400">{user?.email}</p>
           </div>
         </div>
       </div>
@@ -53,7 +62,10 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         </div>
       </div>
 
-      <button className="w-full p-4 text-white font-medium squircle squircle-[18px] squircle-[#FF4D4D]  squircle-smooth-xl">
+      <button
+        onClick={handleLogout}
+        className="w-full p-4 text-white font-medium squircle squircle-[18px] squircle-[#FF4D4D]  squircle-smooth-xl"
+      >
         Logout
       </button>
     </div>

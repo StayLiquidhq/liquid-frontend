@@ -22,5 +22,10 @@ export const useAuth = () => {
     };
   }, [supabase, router]);
 
-  return { user, loading };
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
+
+  return { user, loading, signOut };
 };
