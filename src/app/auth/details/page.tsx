@@ -27,6 +27,10 @@ const AuthDetailsPage = () => {
     }
   }, [user, supabase, router]);
 
+  const handlePlanCreated = () => {
+    router.push("/savings");
+  };
+
   if (loading) {
     return (
       <div className="bg-[#1A1A1A] min-h-screen flex flex-col items-center justify-center text-white">
@@ -92,7 +96,7 @@ const AuthDetailsPage = () => {
       {!loading && (
         <div className="absolute inset-0 bg-[#00000066]  flex items-end justify-center z-50">
           <div className="mb-4" onClick={(e) => e.stopPropagation()}>
-            <CreatePlan />
+            <CreatePlan onClose={() => {}} onPlanCreated={handlePlanCreated} />
           </div>
         </div>
       )}

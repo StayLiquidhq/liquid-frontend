@@ -3,19 +3,33 @@ import { useState } from "react";
 import SetPayout from "./SetPayout";
 import SetTarget from "./SetTarget";
 
-const CreatePlan = () => {
+interface CreatePlanProps {
+  onClose: () => void;
+  onPlanCreated: () => void;
+}
+
+const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
   const [selectedPlan, setSelectedPlan] = useState<
     "locked" | "flexible" | "target" | null
   >(null);
 
   if (selectedPlan === "locked" || selectedPlan === "flexible") {
     return (
-      <SetPayout planType={selectedPlan} onClose={() => setSelectedPlan(null)} />
+      <SetPayout
+        onClose={() => setSelectedPlan(null)}
+        planType={selectedPlan}
+        onPlanCreated={onPlanCreated}
+      />
     );
   }
 
   if (selectedPlan === "target") {
-    return <SetTarget onClose={() => setSelectedPlan(null)} />;
+    return (
+      <SetTarget
+        onClose={() => setSelectedPlan(null)}
+        onPlanCreated={onPlanCreated}
+      />
+    );
   }
 
   return (
@@ -58,8 +72,8 @@ const CreatePlan = () => {
           <h3 className="text-lg font-medium">Flexible Vault</h3>
           <p className="text-sm text-gray-400">
             Deposit, set amount you want to receive, when and where. You can
-            change payout wallet or account and break this vault with a 10% break
-            fee,{" "}
+            change payout wallet or account and break this vault with a 10%
+            break fee,{" "}
             <a href="#" className="text-blue-400">
               learn more
             </a>

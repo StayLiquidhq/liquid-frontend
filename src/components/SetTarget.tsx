@@ -5,9 +5,10 @@ import Image from "next/image";
 
 interface SetTargetProps {
   onClose: () => void;
+  onPlanCreated: () => void;
 }
 
-const SetTarget: React.FC<SetTargetProps> = ({ onClose }) => {
+const SetTarget: React.FC<SetTargetProps> = ({ onClose, onPlanCreated }) => {
   const [targetType, setTargetType] = useState("amount");
   const [payoutMethod, setPayoutMethod] = useState("crypto");
   const [targetAmount, setTargetAmount] = useState("");
@@ -75,21 +76,24 @@ const SetTarget: React.FC<SetTargetProps> = ({ onClose }) => {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to create plan.");
       }
 
-      onClose();
+      onPlanCreated();
     } catch (err: any) {
       setError(err.message);
     } finally {

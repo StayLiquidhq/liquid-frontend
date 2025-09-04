@@ -5,9 +5,14 @@ import { createClient } from "@/utils/supabase/client";
 interface SetPayoutProps {
   onClose: () => void;
   planType: "locked" | "flexible";
+  onPlanCreated: () => void;
 }
 
-const SetPayout: React.FC<SetPayoutProps> = ({ onClose, planType }) => {
+const SetPayout: React.FC<SetPayoutProps> = ({
+  onClose,
+  planType,
+  onPlanCreated,
+}) => {
   const [payoutMethod, setPayoutMethod] = useState("crypto");
   const [receivedAmount, setReceivedAmount] = useState("");
   const [recurrentPayout, setRecurrentPayout] = useState("");
@@ -63,21 +68,24 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose, planType }) => {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to create plan.");
       }
 
-      onClose();
+      onPlanCreated();
     } catch (err: any) {
       setError(err.message);
     } finally {

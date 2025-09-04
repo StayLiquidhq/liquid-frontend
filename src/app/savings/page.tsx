@@ -66,6 +66,10 @@ const SavingsPage = () => {
     }
   }, [user]);
 
+  const handlePlanCreated = () => {
+    setShowCreatePlan(false);
+  };
+
   const handleScroll = () => {
     if (scrollContainerRef.current) {
       const scrollLeft = scrollContainerRef.current.scrollLeft;
@@ -245,7 +249,10 @@ const SavingsPage = () => {
           onClick={() => setShowCreatePlan(false)}
         >
           <div className="mb-4" onClick={(e) => e.stopPropagation()}>
-            <CreatePlan />
+            <CreatePlan
+              onClose={() => setShowCreatePlan(false)}
+              onPlanCreated={handlePlanCreated}
+            />
           </div>
         </div>
       )}
