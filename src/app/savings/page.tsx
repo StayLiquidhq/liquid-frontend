@@ -32,6 +32,7 @@ const SavingsPage = () => {
   const [showBreakWallet, setShowBreakWallet] = useState(false);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [activeWalletIndex, setActiveWalletIndex] = useState(0);
+  const [refreshWallets, setRefreshWallets] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,10 +65,11 @@ const SavingsPage = () => {
     if (user) {
       fetchWallets();
     }
-  }, [user]);
+  }, [user, refreshWallets]);
 
   const handlePlanCreated = () => {
     setShowCreatePlan(false);
+    setRefreshWallets((prev) => !prev);
   };
 
   const handleScroll = () => {
