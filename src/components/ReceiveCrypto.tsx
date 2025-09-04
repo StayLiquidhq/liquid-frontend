@@ -1,11 +1,30 @@
 import Image from "next/image";
+import { QRCodeCanvas as QRCode } from "qrcode.react";
+import { useState } from "react";
+import CopyIcon from "./CopyIcon";
 
 interface ReceiveCryptoProps {
   onClose: () => void;
+  wallet: any;
 }
 
-const ReceiveCrypto: React.FC<ReceiveCryptoProps> = ({ onClose }) => {
-  const walletAddress = "hsGj67b9u4......h76geJ";
+const ReceiveCrypto: React.FC<ReceiveCryptoProps> = ({ onClose, wallet }) => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(wallet.address);
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
+  };
+
+  const shortenAddress = (address: string) => {
+    if (!address) return "";
+    return `${address.substring(0, 10)}.......${address.substring(
+      address.length - 9
+    )}`;
+  };
 
   return (
     <div className="flex w-[380px] p-6 flex-col items-center gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
@@ -14,19 +33,27 @@ const ReceiveCrypto: React.FC<ReceiveCryptoProps> = ({ onClose }) => {
       </div>
 
       <div className="w-full flex items-center justify-between p-3 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
-        <span className="text-lg font-mono">{walletAddress}</span>
-        <button>
-          <Image src="/Copy.svg" alt="Copy Address" width={24} height={24} />
+        <span className="text-lg font-mono">
+          {shortenAddress(wallet.address)}
+        </span>
+        <button onClick={handleCopy}>
+          <CopyIcon color={isCopied ? "#22C55E" : "#6C6C6C"} />
         </button>
       </div>
 
-      <div className="w-full p-4">
-        <Image
-          src="/qr-icon.png"
-          alt="QR Code"
-          width={300}
-          height={300}
-          className="w-full h-auto squircle squircle-mask squircle-4xl squircle-smooth-xl"
+      <div className="w-full p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#FFFFFF]">
+        <QRCode
+          value={wallet.address}
+          size={300}
+          imageSettings={{
+            src: "/logo-short.svg",
+            x: undefined,
+            y: undefined,
+            height: 88,
+            width: 88,
+            excavate: true,
+          }}
+          className="w-full h-auto "
         />
       </div>
 

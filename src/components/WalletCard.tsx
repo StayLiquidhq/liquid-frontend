@@ -15,13 +15,10 @@ const WalletCard: React.FC<WalletCardProps> = ({
   balance,
   icon,
   coinImage,
-  isLast = false,
 }) => {
   return (
     <motion.div
-      className={`relative w-full h-[172px] py-[30px] px-6 flex flex-col justify-between items-start squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E] overflow-hidden flex-shrink-0 snap-center ${
-        !isLast ? "mr-4" : ""
-      }`}
+      className="relative w-full h-[172px] py-[30px] px-6 flex flex-col justify-between items-start squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E] overflow-hidden flex-shrink-0 snap-center"
       variants={itemVariants}
       style={{ width: "100%" }}
     >
@@ -40,7 +37,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
         <Image src="/Eye.svg" alt="Eye Icon" width={18} height={18} />
       </div>
       <div className="relative z-10">
-        <h2 className="text-5xl font-medium">{balance}</h2>
+        <h2 className="text-5xl font-medium">${balance}</h2>
       </div>
     </motion.div>
   );

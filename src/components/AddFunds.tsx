@@ -4,13 +4,19 @@ import ReceiveCrypto from "./ReceiveCrypto";
 
 interface AddFundsProps {
   onClose: () => void;
+  wallet: any;
 }
 
-const AddFunds: React.FC<AddFundsProps> = ({ onClose }) => {
+const AddFunds: React.FC<AddFundsProps> = ({ onClose, wallet }) => {
   const [showReceiveCrypto, setShowReceiveCrypto] = useState(false);
 
   if (showReceiveCrypto) {
-    return <ReceiveCrypto onClose={() => setShowReceiveCrypto(false)} />;
+    return (
+      <ReceiveCrypto
+        onClose={() => setShowReceiveCrypto(false)}
+        wallet={wallet}
+      />
+    );
   }
 
   return (

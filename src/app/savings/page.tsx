@@ -2,35 +2,80 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import CreatePlan from "@/components/CreatePlan";
 import WalletCard from "@/components/WalletCard";
 import AddFunds from "@/components/AddFunds";
 import Settings from "@/components/Settings";
 import { useAuth } from "@/utils/hooks/useAuth";
+import { useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
+import BreakWallet from "@/components/BreakWallet";
+
+interface Wallet {
+  wallet_id: string;
+  user_id: string;
+  address: string;
+  balance: string;
+  currency: string;
+  created_at: string;
+  name: string;
+  icon: string;
+  coinImage: string;
+}
 
 const SavingsPage = () => {
   const { user, loading } = useAuth();
   const [showCreatePlan, setShowCreatePlan] = useState(false);
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showBreakWallet, setShowBreakWallet] = useState(false);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [activeWalletIndex, setActiveWalletIndex] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
+  }, [wallets]);
+
+  useEffect(() => {
+    const fetchWallets = async () => {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/wallets/fetch`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setWallets(data);
+      }
+    };
+
+    if (user) {
+      fetchWallets();
+    }
+  }, [user]);
+
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const scrollLeft = scrollContainerRef.current.scrollLeft;
+      const walletWidth = scrollContainerRef.current.offsetWidth;
+      const newIndex = Math.round(scrollLeft / walletWidth);
+      setActiveWalletIndex(newIndex);
+    }
+  };
 
   const walletIcons = ["/colour-open.svg", "/Lock.svg", "/colour-target.svg"];
-
-  const wallets = [
-    {
-      name: "Wallet 1",
-      balance: "$3,000.00",
-      icon: walletIcons[Math.floor(Math.random() * walletIcons.length)],
-      coinImage: "/white-3d-coin.svg",
-    },
-    {
-      name: "Wallet 2",
-      balance: "$1,500.00",
-      icon: walletIcons[Math.floor(Math.random() * walletIcons.length)],
-      coinImage: "/white-3d-coin.svg",
-    },
-  ];
 
   if (loading) {
     return (
@@ -68,20 +113,24 @@ const SavingsPage = () => {
           </div>
         </motion.header>
 
-        
         <motion.main
           className="w-full max-w-sm mx-auto mt-4 flex flex-col items-start"
           variants={itemVariants}
         >
-          <div className="w-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+          <div
+            ref={scrollContainerRef}
+            onScroll={handleScroll}
+            className="w-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4"
+          >
             {wallets.map((wallet, index) => (
               <WalletCard
                 key={index}
                 name={wallet.name}
                 balance={wallet.balance}
-                icon={wallet.icon}
-                coinImage={wallet.coinImage}
-                isLast={index === wallets.length - 1}
+                icon={
+                  walletIcons[Math.floor(Math.random() * walletIcons.length)]
+                }
+                coinImage="/white-3d-coin.svg"
               />
             ))}
             <motion.div
@@ -114,9 +163,17 @@ const SavingsPage = () => {
               onClick={() => setShowSettings(true)}
               className="flex-shrink-0 px-6 py-8  flex items-center justify-center squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]"
             >
-              <Image src="/setting.svg" alt="Settings Icon" width={27} height={27} />
+              <Image
+                src="/setting.svg"
+                alt="Settings Icon"
+                width={27}
+                height={27}
+              />
             </button>
-            <button className="flex-shrink-0 px-6 py-8  flex items-center justify-center squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]">
+            <button
+              onClick={() => setShowBreakWallet(true)}
+              className="flex-shrink-0 px-6 py-8  flex items-center justify-center squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]"
+            >
               <Image src="/Break.svg" alt="Break Icon" width={27} height={27} />
             </button>
           </motion.div>
@@ -132,9 +189,15 @@ const SavingsPage = () => {
             variants={itemVariants}
           >
             <div className="flex items-start gap-3">
-              <button className="px-4 py-2 bg-[#242424] rounded-full text-sm">All</button>
-              <button className="px-4 py-2 bg-transparent rounded-full text-sm text-gray-400">Out</button>
-              <button className="px-4 py-2 bg-transparent rounded-full text-sm text-gray-400">In</button>
+              <button className="px-4 py-2 bg-[#242424] rounded-full text-sm">
+                All
+              </button>
+              <button className="px-4 py-2 bg-transparent rounded-full text-sm text-gray-400">
+                Out
+              </button>
+              <button className="px-4 py-2 bg-transparent rounded-full text-sm text-gray-400">
+                In
+              </button>
             </div>
             <div className="w-full flex flex-col items-start gap-3 self-stretch">
               <div className="w-full flex justify-between items-center px-3 py-[18px] squircle squircle-4xl squircle-smooth-xl squircle-[#242424]">
@@ -192,7 +255,10 @@ const SavingsPage = () => {
           onClick={() => setShowAddFunds(false)}
         >
           <div className="mb-4" onClick={(e) => e.stopPropagation()}>
-            <AddFunds onClose={() => setShowAddFunds(false)} />
+            <AddFunds
+              onClose={() => setShowAddFunds(false)}
+              wallet={wallets[activeWalletIndex]}
+            />
           </div>
         </div>
       )}
@@ -203,6 +269,16 @@ const SavingsPage = () => {
         >
           <div className="mb-4" onClick={(e) => e.stopPropagation()}>
             <Settings onClose={() => setShowSettings(false)} />
+          </div>
+        </div>
+      )}
+      {showBreakWallet && (
+        <div
+          className="absolute inset-0 bg-[#00000066] flex items-end justify-center z-50"
+          onClick={() => setShowBreakWallet(false)}
+        >
+          <div className="mb-4" onClick={(e) => e.stopPropagation()}>
+            <BreakWallet onClose={() => setShowBreakWallet(false)} />
           </div>
         </div>
       )}

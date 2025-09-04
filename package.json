@@ -14,10 +14,12 @@
     "@squircle/tailwindcss": "^1.0.6",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.56.1",
+    "@types/qrcode.react": "^1.0.5",
     "framer-motion": "^12.23.12",
     "i": "^0.3.7",
     "next": "15.5.2",
     "npm": "^11.5.2",
+    "qrcode.react": "^4.2.0",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
