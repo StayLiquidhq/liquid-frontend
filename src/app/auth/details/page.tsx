@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
 import CreatePlan from "@/components/CreatePlan";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { useAuth } from "@/utils/hooks/useAuth";
 import { logAuthEvent, checkUserPlanStatus } from "@/utils/auth/helpers";
 import { createClient } from "@/utils/supabase/client";
@@ -34,7 +35,7 @@ const AuthDetailsPage = () => {
   if (loading) {
     return (
       <div className="bg-[#1A1A1A] min-h-screen flex flex-col items-center justify-center text-white">
-        <p>Loading...</p>
+        <LoadingSpinner />
       </div>
     );
   }

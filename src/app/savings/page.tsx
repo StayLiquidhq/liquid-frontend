@@ -11,6 +11,7 @@ import { useAuth } from "@/utils/hooks/useAuth";
 import { useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import BreakWallet from "@/components/BreakWallet";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface Wallet {
   wallet_id: string;
@@ -91,7 +92,7 @@ const SavingsPage = () => {
   if (loading) {
     return (
       <div className="bg-[#1A1A1A] min-h-screen flex flex-col items-center justify-center text-white">
-        <p>Loading...</p>
+        <LoadingSpinner />
       </div>
     );
   }
