@@ -24,6 +24,7 @@ interface Wallet {
   icon: string;
   coinImage: string;
   plan_type: "locked" | "flexible" | "target";
+  plan_id: string;
 }
 
 const SavingsPage = () => {
@@ -285,13 +286,17 @@ const SavingsPage = () => {
           </div>
         </div>
       )}
-      {showBreakWallet && (
+      {showBreakWallet && wallets[activeWalletIndex] && (
         <div
           className="absolute inset-0 bg-[#00000066] flex items-end justify-center z-50"
           onClick={() => setShowBreakWallet(false)}
         >
           <div className="mb-4" onClick={(e) => e.stopPropagation()}>
-            <BreakWallet onClose={() => setShowBreakWallet(false)} />
+            <BreakWallet
+              onClose={() => setShowBreakWallet(false)}
+              planId={wallets[activeWalletIndex].plan_id}
+              balance={wallets[activeWalletIndex].balance}
+            />
           </div>
         </div>
       )}
