@@ -11,12 +11,13 @@ interface SetTargetProps {
 const SetTarget: React.FC<SetTargetProps> = ({ onClose, onPlanCreated }) => {
   const [targetType, setTargetType] = useState("amount");
   const [payoutMethod, setPayoutMethod] = useState("crypto");
+  const [name, setName] = useState("");
   const [targetAmount, setTargetAmount] = useState("");
   const [targetDate, setTargetDate] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
-  const [accountNumber, setAccountNumber] = useState("");
-  const [bankName, setBankName] = useState("Zenith Bank PLC");
-  const [accountName, setAccountName] = useState("");
+  const [accountNumber] = useState("");
+  const [bankName ] = useState("Zenith Bank PLC");
+  const [accountName ] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +37,7 @@ const SetTarget: React.FC<SetTargetProps> = ({ onClose, onPlanCreated }) => {
     }
 
     const payload: any = {
+      name: name,
       plan_type: "target",
       target_type: targetType,
       payout_method: payoutMethod,
@@ -116,6 +118,17 @@ const SetTarget: React.FC<SetTargetProps> = ({ onClose, onPlanCreated }) => {
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
+
+      <div className="w-full flex flex-col gap-2">
+        <label className="text-sm text-gray-400">Name of Vault</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g., Vacation Fund"
+          className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white"
+        />
+      </div>
 
       <div className="w-full flex gap-2">
         <button

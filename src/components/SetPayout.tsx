@@ -15,7 +15,8 @@ const SetPayout: React.FC<SetPayoutProps> = ({
   onPlanCreated,
 }) => {
   const [payoutMethod, setPayoutMethod] = useState("crypto");
-  const [receivedAmount, setReceivedAmount] = useState("");
+  const [name, setName] = useState("");
+  const [receivedAmount, setReceivedAmount] = useState("500");
   const [recurrentPayout, setRecurrentPayout] = useState("");
   const [frequency, setFrequency] = useState("Daily");
   const [payoutTime, setPayoutTime] = useState("07:00");
@@ -42,6 +43,7 @@ const SetPayout: React.FC<SetPayoutProps> = ({
     }
 
     const payload: any = {
+      name: name,
       plan_type: planType,
       received_amount: parseFloat(receivedAmount),
       recurrent_payout: parseFloat(recurrentPayout),
@@ -112,12 +114,12 @@ const SetPayout: React.FC<SetPayoutProps> = ({
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <div className="w-full flex flex-col gap-2">
-        <label className="text-sm text-gray-400">Received Amount ($)</label>
+        <label className="text-sm text-gray-400">Name of Vault</label>
         <input
-          type="number"
-          value={receivedAmount}
-          onChange={(e) => setReceivedAmount(e.target.value)}
-          placeholder="e.g., 2000"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g., New Car Fund"
           className="w-full p-4 text-lg squircle squircle-[#252525] squircle-[18px] squircle-smooth-xl text-white"
         />
       </div>
