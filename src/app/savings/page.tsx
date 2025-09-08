@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import BreakWallet from "@/components/BreakWallet";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import EditPayout from "@/components/EditPayout";
 
 interface Wallet {
   wallet_id: string;
@@ -27,13 +28,37 @@ interface Wallet {
   plan_id: string;
 }
 
+interface Plan {
+  id: string;
+  user_id: string;
+  plan_type: "locked" | "flexible" | "target";
+  received_amount: number | null;
+  recurrent_payout: number | null;
+  frequency: string | null;
+  payout_time: string | null;
+  target_type: "amount" | "date" | null;
+  target_amount: number | null;
+  target_date: string | null;
+  payout_method: "crypto" | "fiat";
+  payout_account_number: string | null;
+  bank_name: string | null;
+  account_name: string | null;
+  payout_wallet_address: string;
+  created_at: string;
+  last_payout_date: string | null;
+  next_payout_date: string | null;
+  status: string;
+}
+
 const SavingsPage = () => {
   const { user, loading } = useAuth();
   const [showCreatePlan, setShowCreatePlan] = useState(false);
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showBreakWallet, setShowBreakWallet] = useState(false);
+  const [showEditPayout, setShowEditPayout] = useState(false);
   const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [activeWalletIndex, setActiveWalletIndex] = useState(0);
   const [refreshWallets, setRefreshWallets] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -46,6 +71,26 @@ const SavingsPage = () => {
     null
   );
   const [filter, setFilter] = useState("All");
+
+  useEffect(() => {
+    const isModalOpen =
+      showCreatePlan ||
+      showAddFunds ||
+      showSettings ||
+      showBreakWallet ||
+      showEditPayout;
+    if (isModalOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+  }, [
+    showCreatePlan,
+    showAddFunds,
+    showSettings,
+    showBreakWallet,
+    showEditPayout,
+  ]);
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -61,21 +106,71 @@ const SavingsPage = () => {
       } = await supabase.auth.getSession();
 
       if (session) {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/wallets/fetch`,
-          {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/wallets/fetch`,
+            {
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
+            }
+          );
+          if (!response.ok) {
+            throw new Error("Failed to fetch wallets");
           }
-        );
-        const data = await response.json();
-        setWallets(data);
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            setWallets(data);
+          } else {
+            setWallets([]);
+          }
+        } catch (error) {
+          console.error("Error fetching wallets:", error);
+          setWallets([]);
+        }
       }
     };
 
     if (user) {
       fetchWallets();
+    }
+  }, [user, refreshWallets]);
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/fetch`,
+            {
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
+            }
+          );
+          if (!response.ok) {
+            throw new Error("Failed to fetch plans");
+          }
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            setPlans(data);
+          } else {
+            setPlans([]);
+          }
+        } catch (error) {
+          console.error("Error fetching plans:", error);
+          setPlans([]);
+        }
+      }
+    };
+
+    if (user) {
+      fetchPlans();
     }
   }, [user, refreshWallets]);
 
@@ -139,7 +234,7 @@ const SavingsPage = () => {
         fetchAllHistories();
       }
 
-      const intervalId = setInterval(fetchAllHistories, 30000);
+      const intervalId = setInterval(fetchAllHistories, 120000);
 
       return () => clearInterval(intervalId);
     }
@@ -158,6 +253,10 @@ const SavingsPage = () => {
       setActiveWalletIndex(newIndex);
     }
   };
+
+  const isAddVaultActive = activeWalletIndex === wallets.length;
+  const isBreakButtonDisabled =
+    isAddVaultActive || wallets[activeWalletIndex]?.plan_type === "locked";
 
   const activeWalletTransactions =
     wallets.length > 0 && wallets[activeWalletIndex]
@@ -200,7 +299,10 @@ const SavingsPage = () => {
           <div className="flex items-center gap-2">
             <Image src="/logo.svg" alt="Liquid Logo" width={94} height={94} />
           </div>
-          <div className="flex items-center gap-3 p-[6px] squircle-border-1 squircle-border-[#585858] squircle squircle-7xl squircle-smooth-xl">
+          <div
+            className="flex items-center gap-3 p-[6px] squircle-border-1 squircle-border-[#585858] squircle squircle-7xl squircle-smooth-xl"
+            onClick={() => setShowSettings(true)}
+          >
             <div className="w-10 h-10 squircle squircle-3xl squircle-smooth-xl overflow-hidden">
               <Image
                 src="/frame.png"
@@ -252,14 +354,16 @@ const SavingsPage = () => {
           >
             <button
               onClick={() => setShowAddFunds(true)}
-              className="flex-grow flex items-center justify-center gap-2 px-6 py-8 text-white squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]"
+              className="flex-grow flex items-center justify-center gap-2 px-6 py-8 text-white squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E] disabled:opacity-50"
+              disabled={isAddVaultActive}
             >
               <Image src="/in.svg" alt="Receive Icon" width={29} height={29} />
-              <span className="text-lg">Receive</span>
+              <span className="text-lg">Add Funds</span>
             </button>
             <button
-              onClick={() => setShowSettings(true)}
-              className="flex-shrink-0 px-6 py-8  flex items-center justify-center squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]"
+              onClick={() => setShowEditPayout(true)}
+              className="flex-shrink-0 px-6 py-8  flex items-center justify-center squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E] disabled:opacity-50"
+              disabled={isAddVaultActive}
             >
               <Image
                 src="/setting.svg"
@@ -270,7 +374,8 @@ const SavingsPage = () => {
             </button>
             <button
               onClick={() => setShowBreakWallet(true)}
-              className="flex-shrink-0 px-6 py-8  flex items-center justify-center squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]"
+              className="flex-shrink-0 px-6 py-8  flex items-center justify-center squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E] disabled:opacity-50"
+              disabled={isBreakButtonDisabled}
             >
               <Image src="/Break.svg" alt="Break Icon" width={27} height={27} />
             </button>
@@ -412,6 +517,23 @@ const SavingsPage = () => {
               onClose={() => setShowBreakWallet(false)}
               planId={wallets[activeWalletIndex].plan_id}
               balance={wallets[activeWalletIndex].balance}
+            />
+          </div>
+        </div>
+      )}
+      {showEditPayout && (
+        <div
+          className="absolute inset-0 bg-[#00000066] flex items-end justify-center z-50"
+          onClick={() => setShowEditPayout(false)}
+        >
+          <div className="mb-4" onClick={(e) => e.stopPropagation()}>
+            <EditPayout
+              onClose={() => setShowEditPayout(false)}
+              plan={
+                plans.find(
+                  (p) => p.id === wallets[activeWalletIndex]?.plan_id
+                ) || null
+              }
             />
           </div>
         </div>

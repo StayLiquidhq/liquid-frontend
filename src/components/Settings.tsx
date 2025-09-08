@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { useState } from "react";
-import EditPayout from "./EditPayout";
 import { useAuth } from "@/utils/hooks/useAuth";
 
 interface SettingsProps {
@@ -8,18 +7,12 @@ interface SettingsProps {
 }
 
 const Settings: React.FC<SettingsProps> = ({ onClose }) => {
-  const [showEditPayout, setShowEditPayout] = useState(false);
   const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
     onClose();
   };
-
-  if (showEditPayout) {
-    return <EditPayout onClose={() => setShowEditPayout(false)} />;
-  }
-
   return (
     <div className="flex w-[380px] p-6 flex-col items-start gap-6 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
       <div className="w-full flex justify-between items-start">
@@ -45,12 +38,6 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
       </div>
 
       <div className="w-full flex flex-col gap-3">
-        <button
-          onClick={() => setShowEditPayout(true)}
-          className="w-full flex justify-between items-center p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]"
-        >
-          <span className="text-lg">Edit Payout</span>
-        </button>
         <div className="w-full flex justify-between items-center p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
           <span className="text-lg">Support</span>
         </div>

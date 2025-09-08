@@ -93,7 +93,7 @@ const BreakWallet: React.FC<BreakWalletProps> = ({
     return (
       <div className="flex w-[380px] p-6 flex-col items-center gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
         <motion.div
-          className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center"
+          className="w-24 h-24 bg-[#0088FF] rounded-full flex items-center justify-center"
           variants={successVariants}
           initial="hidden"
           animate="visible"
@@ -156,7 +156,7 @@ const BreakWallet: React.FC<BreakWalletProps> = ({
         </button>
         <button
           onClick={handleBreak}
-          className="w-full p-4 font-medium squircle squircle-[18px] squircle-smooth-xl squircle-[#FB4E5A] text-[#1A1A1A]"
+          className="w-full p-4 font-medium squircle squircle-[18px] squircle-smooth-xl squircle-[#FB4E5A] text-white"
         >
           Continue
         </button>

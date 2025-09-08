@@ -224,41 +224,11 @@ const SetTarget: React.FC<SetTargetProps> = ({ onClose, onPlanCreated }) => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="w-full flex flex-col gap-4"
+            className="w-full"
           >
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-sm text-gray-400">
-                Payout Account Number (NGN)
-              </label>
-              <input
-                type="text"
-                value={accountNumber}
-                onChange={(e) => setAccountNumber(e.target.value)}
-                placeholder="Enter account number"
-                className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white"
-              />
-            </div>
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-sm text-gray-400">Bank Name</label>
-              <select
-                value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
-                className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white appearance-none"
-              >
-                <option>Zenith Bank PLC</option>
-                <option>Guaranty Trust Bank</option>
-                <option>First Bank of Nigeria</option>
-              </select>
-            </div>
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-sm text-gray-400">Account Name</label>
-              <input
-                type="text"
-                value={accountName}
-                onChange={(e) => setAccountName(e.target.value)}
-                placeholder="Enter account name"
-                className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white"
-              />
+            <div className="flex items-center gap-3 p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white">
+              <Image src="/Info.svg" alt="Info" width={24} height={24} />
+              <span>Coming this November</span>
             </div>
           </motion.div>
         )}
@@ -266,7 +236,7 @@ const SetTarget: React.FC<SetTargetProps> = ({ onClose, onPlanCreated }) => {
 
       <button
         onClick={handleSubmit}
-        disabled={isLoading}
+        disabled={isLoading || payoutMethod === "fiat"}
         className="w-full p-4 text-white font-medium squircle squircle-[18px] squircle-[#0088FF] squircle-smooth-xl disabled:opacity-50"
       >
         {isLoading ? "Creating..." : "Create"}

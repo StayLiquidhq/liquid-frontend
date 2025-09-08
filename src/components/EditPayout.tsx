@@ -3,82 +3,50 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
 
-interface Wallet {
-  id: string;
-  plan_id: string;
-  address: string;
-  created_at: string;
-}
-
 interface Plan {
   id: string;
   user_id: string;
-  plan_type: string;
-  received_amount: number;
-  recurrent_payout: number;
-  frequency: string;
-  payout_time: string;
+  plan_type: "locked" | "flexible" | "target";
+  received_amount: number | null;
+  recurrent_payout: number | null;
+  frequency: string | null;
+  payout_time: string | null;
+  target_type: "amount" | "date" | null;
+  target_amount: number | null;
+  target_date: string | null;
+  payout_method: "crypto" | "fiat";
+  payout_account_number: string | null;
+  bank_name: string | null;
+  account_name: string | null;
+  payout_wallet_address: string;
   created_at: string;
-  wallets: Wallet[];
+  last_payout_date: string | null;
+  next_payout_date: string | null;
+  status: string;
 }
 
 interface EditPayoutProps {
   onClose: () => void;
+  plan: Plan | null;
 }
 
-const EditPayout: React.FC<EditPayoutProps> = ({ onClose }) => {
+const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
   const [payoutMethod, setPayoutMethod] = useState("crypto");
-  const [plan, setPlan] = useState<Plan | null>(null);
   const [walletAddress, setWalletAddress] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [bankName, setBankName] = useState("Zenith Bank PLC");
   const [accountName, setAccountName] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchPlan = async () => {
-      const supabase = createClient();
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (session) {
-        try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/fetch`, {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          });
-          if (!response.ok) {
-            throw new Error("Failed to fetch plan");
-          }
-          const plans = await response.json();
-          if (plans.length > 0) {
-            const currentPlan = plans[0];
-            setPlan(currentPlan);
-            // Assuming if wallet exists, it's crypto
-            if (currentPlan.wallets && currentPlan.wallets.length > 0) {
-              setPayoutMethod("crypto");
-              setWalletAddress(currentPlan.payout_wallet_address);
-            } else {
-              setPayoutMethod("fiat");
-              setAccountNumber(currentPlan.payout_account_number);
-              setAccountName(currentPlan.account_name);
-              setBankName(currentPlan.bank_name);
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching plan:", error);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-      }
-    };
-
-    fetchPlan();
-  }, []);
+    if (plan) {
+      setPayoutMethod(plan.payout_method === "fiat" ? "fiat" : "crypto");
+      setWalletAddress(plan.payout_wallet_address || "");
+      setAccountNumber(plan.payout_account_number || "");
+      setAccountName(plan.account_name || "");
+      setBankName(plan.bank_name || "Zenith Bank PLC");
+    }
+  }, [plan]);
 
   const handleSave = async () => {
     const supabase = createClient();
@@ -87,6 +55,7 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose }) => {
     } = await supabase.auth.getSession();
 
     if (session && plan) {
+      setIsLoading(true);
       const updateData: any = {
         plan_id: plan.id,
         payout_method: payoutMethod,
@@ -105,12 +74,13 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose }) => {
           `${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/update`,
           {
             method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify(updateData),
-        });
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify(updateData),
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to update plan");
@@ -121,6 +91,8 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose }) => {
       } catch (error) {
         console.error("Error updating plan:", error);
         alert("Failed to update payout.");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -131,12 +103,20 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose }) => {
     exit: { opacity: 0, y: 20 },
   };
 
+  if (!plan) {
+    return (
+      <div className="flex w-[380px] p-6 flex-col items-center justify-center gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
+        <p>Loading plan details...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex w-[380px] p-6 flex-col items-start gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
       <div className="w-full flex justify-between items-center">
         <h2 className="text-xl font-medium">Edit Payout</h2>
       </div>
-
+      
       <div className="flex gap-2">
         <button
           onClick={() => setPayoutMethod("crypto")}
@@ -183,74 +163,90 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose }) => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="w-full flex flex-col gap-4"
+            className="w-full"
           >
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-sm text-gray-400">
-                Payout Account Number (NGN)
-              </label>
-              <input
-                type="text"
-                value={accountNumber}
-                onChange={(e) => setAccountNumber(e.target.value)}
-                className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white"
-              />
-            </div>
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-sm text-gray-400">Account Details</label>
-              <select
-                value={bankName}
-                onChange={(e) => setBankName(e.target.value)}
-                className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white appearance-none"
-              >
-                <option>Zenith Bank PLC</option>
-                {/* Add other banks as needed */}
-              </select>
-              <input
-                type="text"
-                value={accountName}
-                onChange={(e) => setAccountName(e.target.value)}
-                className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white"
-              />
+            <div className="flex items-center gap-3 p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white">
+              <Image src="/Info.svg" alt="Info" width={24} height={24} />
+              <span>Coming this November</span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="w-full flex flex-col gap-2 opacity-50">
-        <label className="text-sm text-gray-400">Recurrent Payout</label>
-        <input
-          type="text"
-          value={`$${plan?.recurrent_payout || ""}`}
-          className="w-full p-4 text-lg squircle squircle-[18px] squircle-[#252525] squircle-smooth-xl text-white"
-          disabled
-        />
-      </div>
+      {(plan.plan_type === "locked" || plan.plan_type === "flexible") && (
+        <>
+          <div className="w-full flex flex-col gap-2 opacity-50">
+            <label className="text-sm text-gray-400">Recurrent Payout</label>
+            <input
+              type="text"
+              value={`$${plan.recurrent_payout || ""}`}
+              className="w-full p-4 text-lg squircle squircle-[18px] squircle-[#252525] squircle-smooth-xl text-white"
+              disabled
+            />
+          </div>
+          <div className="w-full flex flex-col gap-2 opacity-50">
+            <label className="text-sm text-gray-400">Frequency</label>
+            <input
+              type="text"
+              value={plan.frequency || ""}
+              className="w-full p-4 text-lg squircle squircle-[18px] squircle-[#252525] squircle-smooth-xl text-white capitalize"
+              disabled
+            />
+          </div>
+          <div className="w-full flex flex-col gap-2 opacity-50">
+            <label className="text-sm text-gray-400">Payout Time</label>
+            <input
+              type="text"
+              value={`${plan.payout_time} (UTC)` || ""}
+              className="w-full p-4 text-lg squircle squircle-[18px] squircle-[#252525] squircle-smooth-xl text-white"
+              disabled
+            />
+          </div>
+        </>
+      )}
 
-      <div className="w-full flex flex-col gap-2 opacity-50">
-        <label className="text-sm text-gray-400">Frequency</label>
-        <select
-          className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none"
-          disabled
-        >
-          <option>{plan?.frequency || ""}</option>
-        </select>
-      </div>
+      {plan.plan_type === "target" && (
+        <>
+          {plan.target_type === "amount" && (
+            <div className="w-full flex flex-col gap-2 opacity-50">
+              <label className="text-sm text-gray-400">Target Amount</label>
+              <input
+                type="text"
+                value={`$${plan.target_amount || ""}`}
+                className="w-full p-4 text-lg squircle squircle-[18px] squircle-[#252525] squircle-smooth-xl text-white"
+                disabled
+              />
+            </div>
+          )}
+          {plan.target_type === "date" && (
+            <div className="w-full flex flex-col gap-2 opacity-50">
+              <label className="text-sm text-gray-400">Target Date</label>
+              <input
+                type="text"
+                value={
+                  plan.target_date
+                    ? new Date(plan.target_date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })
+                    : ""
+                }
+                className="w-full p-4 text-lg squircle squircle-[18px] squircle-[#252525] squircle-smooth-xl text-white"
+                disabled
+              />
+            </div>
+          )}
+        </>
+      )}
 
-      <div className="w-full flex flex-col gap-2 opacity-50">
-        <select
-          className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none"
-          disabled
-        >
-          <option>{`${plan?.payout_time} (UTC)` || ""}</option>
-        </select>
-      </div>
 
       <button
         onClick={handleSave}
-        className="w-full p-4 text-white font-medium squircle squircle-[18px] squircle-smooth-xl squircle-[#0088FF] "
+        disabled={isLoading || payoutMethod === "fiat"}
+        className="w-full p-4 text-white font-medium squircle squircle-[18px] squircle-smooth-xl squircle-[#0088FF] disabled:opacity-50"
       >
-        Save
+        {isLoading ? "Saving..." : "Save"}
       </button>
     </div>
   );
