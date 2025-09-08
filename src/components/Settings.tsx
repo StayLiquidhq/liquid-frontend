@@ -20,7 +20,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           <div className="flex items-center gap-3 p-[6px] squircle-border-1 squircle-border-[#585858] squircle squircle-7xl squircle-smooth-xl">
             <div className="w-10 h-10 squircle squircle-3xl squircle-smooth-xl overflow-hidden">
               <Image
-                src="/frame.png"
+                src={user?.user_metadata?.avatar_url || "/frame.png"}
                 alt="User Profile"
                 width={40}
                 height={40}

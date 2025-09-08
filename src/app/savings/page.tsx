@@ -305,7 +305,7 @@ const SavingsPage = () => {
           >
             <div className="w-10 h-10 squircle squircle-3xl squircle-smooth-xl overflow-hidden">
               <Image
-                src="/frame.png"
+                src={user?.user_metadata?.avatar_url || "/frame.png"}
                 alt="User Profile"
                 width={40}
                 height={40}
