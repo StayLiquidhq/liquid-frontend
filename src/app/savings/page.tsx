@@ -37,6 +37,15 @@ const SavingsPage = () => {
   const [activeWalletIndex, setActiveWalletIndex] = useState(0);
   const [refreshWallets, setRefreshWallets] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [transactions, setTransactions] = useState<{ [walletId: string]: any[] }>(
+    {}
+  );
+  const [isInitialTransactionsLoading, setIsInitialTransactionsLoading] =
+    useState(true);
+  const [transactionsError, setTransactionsError] = useState<string | null>(
+    null
+  );
+  const [filter, setFilter] = useState("All");
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -70,6 +79,72 @@ const SavingsPage = () => {
     }
   }, [user, refreshWallets]);
 
+  useEffect(() => {
+    const fetchAllHistories = async () => {
+      if (!wallets.length) return;
+
+      setTransactionsError(null);
+
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        try {
+          const transactionPromises = wallets.map((wallet) =>
+            fetch(
+              `${process.env.NEXT_PUBLIC_BASE_URL}/api/transactions/fetch`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({ wallet_id: wallet.wallet_id }),
+              }
+            ).then((res) => {
+              if (!res.ok) {
+                return res.json().then((errorData) => {
+                  throw new Error(
+                    errorData.error ||
+                      `Failed to fetch data for wallet ${wallet.wallet_id}`
+                  );
+                });
+              }
+              return res.json();
+            })
+          );
+
+          const results = await Promise.all(transactionPromises);
+
+          const newTransactions: { [walletId: string]: any[] } = {};
+          results.forEach((result, index) => {
+            newTransactions[wallets[index].wallet_id] = result.transactions;
+          });
+
+          setTransactions(newTransactions);
+        } catch (err: any) {
+          setTransactionsError(err.message);
+        }
+      }
+    };
+
+    if (user && wallets.length > 0) {
+      if (isInitialTransactionsLoading) {
+        fetchAllHistories().finally(() =>
+          setIsInitialTransactionsLoading(false)
+        );
+      } else {
+        fetchAllHistories();
+      }
+
+      const intervalId = setInterval(fetchAllHistories, 30000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [user, wallets, isInitialTransactionsLoading]);
+
   const handlePlanCreated = () => {
     setShowCreatePlan(false);
     setRefreshWallets((prev) => !prev);
@@ -83,6 +158,18 @@ const SavingsPage = () => {
       setActiveWalletIndex(newIndex);
     }
   };
+
+  const activeWalletTransactions =
+    wallets.length > 0 && wallets[activeWalletIndex]
+      ? transactions[wallets[activeWalletIndex].wallet_id] || []
+      : [];
+
+  const filteredTransactions = activeWalletTransactions.filter((tx) => {
+    if (filter === "All") return true;
+    if (filter === "In") return tx.type === "credit";
+    if (filter === "Out") return tx.type === "debit";
+    return true;
+  });
 
   const iconMap = {
     locked: "/Lock.svg",
@@ -200,47 +287,76 @@ const SavingsPage = () => {
             variants={itemVariants}
           >
             <div className="flex items-start gap-3">
-              <button className="px-4 py-2 bg-[#242424] rounded-full text-sm">
+              <button
+                onClick={() => setFilter("All")}
+                className={`px-4 py-2 rounded-full text-sm ${
+                  filter === "All"
+                    ? "bg-[#242424]"
+                    : "bg-transparent text-gray-400"
+                }`}
+              >
                 All
               </button>
-              <button className="px-4 py-2 bg-transparent rounded-full text-sm text-gray-400">
+              <button
+                onClick={() => setFilter("Out")}
+                className={`px-4 py-2 rounded-full text-sm ${
+                  filter === "Out"
+                    ? "bg-[#242424]"
+                    : "bg-transparent text-gray-400"
+                }`}
+              >
                 Out
               </button>
-              <button className="px-4 py-2 bg-transparent rounded-full text-sm text-gray-400">
+              <button
+                onClick={() => setFilter("In")}
+                className={`px-4 py-2 rounded-full text-sm ${
+                  filter === "In"
+                    ? "bg-[#242424]"
+                    : "bg-transparent text-gray-400"
+                }`}
+              >
                 In
               </button>
             </div>
             <div className="w-full flex flex-col items-start gap-3 self-stretch">
-              <div className="w-full flex justify-between items-center px-3 py-[18px] squircle squircle-4xl squircle-smooth-xl squircle-[#242424]">
-                <div className="flex flex-col items-start gap-1">
-                  <span className="text-sm">Received</span>
-                  <span className="text-xl font-medium">+$500</span>
+              {isInitialTransactionsLoading ? (
+                <div className="w-full flex justify-center items-center h-20">
+                  <LoadingSpinner />
                 </div>
-                <div className="flex flex-col items-end text-xs text-gray-400 gap-1">
-                  <span>≈ 500USDC from</span>
-                  <span>EPwlk2uuQhXkg3...Sfn</span>
+              ) : transactionsError ? (
+                <div className="w-full text-center text-red-500">
+                  Error: {transactionsError}
                 </div>
-              </div>
-              <div className="w-full flex justify-between items-center px-3 py-[18px] squircle squircle-4xl squircle-smooth-xl squircle-[#242424]">
-                <div className="flex flex-col items-start gap-1">
-                  <span className="text-sm">Sent</span>
-                  <span className="text-xl font-medium">-$200</span>
+              ) : filteredTransactions.length === 0 ? (
+                <div className="w-full text-center text-gray-400">
+                  No transactions yet.
                 </div>
-                <div className="flex flex-col items-end text-xs text-gray-400 gap-1">
-                  <span>≈ 200USDC to</span>
-                  <span>EPwlk2uuQhXkg3...Sfn</span>
-                </div>
-              </div>
-              <div className="w-full flex justify-between items-center px-3 py-[18px] squircle squircle-4xl squircle-smooth-xl squircle-[#242424]">
-                <div className="flex flex-col items-start gap-1">
-                  <span className="text-sm">Sent</span>
-                  <span className="text-xl font-medium">-$20</span>
-                </div>
-                <div className="flex flex-col items-end text-xs text-gray-400 gap-1">
-                  <span>≈ ₦32,004 to</span>
-                  <span>2271230000 - Zenith PLc</span>
-                </div>
-              </div>
+              ) : (
+                filteredTransactions.map((tx) => (
+                  <div
+                    key={tx.id}
+                    className="w-full flex justify-between items-center px-3 py-[18px] squircle squircle-4xl squircle-smooth-xl squircle-[#242424]"
+                  >
+                    <div className="flex flex-col items-start gap-1">
+                      <span className="text-sm capitalize">
+                        {tx.type === "credit" ? "Received" : "Sent"}
+                      </span>
+                      <span className="text-xl font-medium">
+                        {tx.type === "debit" ? "-" : "+"}${tx.amount}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-end text-xs text-gray-400 gap-1">
+                      <span>
+                        ≈ {tx.amount}
+                        {tx.currency} from
+                      </span>
+                      <span className="truncate max-w-[120px]">
+                        {tx.description}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </motion.div>
         </motion.main>
@@ -263,7 +379,7 @@ const SavingsPage = () => {
           </div>
         </div>
       )}
-      {showAddFunds && (
+      {showAddFunds && wallets[activeWalletIndex] && (
         <div
           className="absolute inset-0 bg-[#00000066] flex items-end justify-center z-50"
           onClick={() => setShowAddFunds(false)}
