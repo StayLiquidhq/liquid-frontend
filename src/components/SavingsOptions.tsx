@@ -15,7 +15,7 @@ const SavingsOptions = () => {
       <div className="flex flex-col md:flex-row md:flex-nowrap gap-6 md:gap-12">
         {/* Left Column */}
         <div className="w-full md:w-7/12 flex flex-col gap-6 md:gap-12">
-          <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:squircle-border-4 hover:squircle-border-[#3086FF] transition-colors duration-300 p-8 md:p-16 text-[#424242] flex-1">
+          <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:squircle-border-4 hover:squircle-border-[#3086FF] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] p-8 md:p-16 text-[#424242] flex-1">
             <Image
               src="/Lock.svg"
               alt="Savings Options Icon"
@@ -31,7 +31,7 @@ const SavingsOptions = () => {
             </p>
           </div>
           <div className="flex flex-col md:flex-row gap-6 md:gap-12">
-            <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:squircle-border-4 hover:squircle-border-[#FF692C] transition-colors duration-300 p-8 md:p-16 text-[#424242] w-full md:w-1/2">
+            <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:squircle-border-4 hover:squircle-border-[#FF692C] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] p-8 md:p-16 text-[#424242] w-full md:w-1/2">
               <Image
                 src="/colour-target.svg"
                 alt="Savings Options Icon"
@@ -46,7 +46,7 @@ const SavingsOptions = () => {
                 early with 10% fee.
               </p>
             </div>
-            <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] transition-colors duration-300  hover:squircle-border-4 hover:squircle-border-[#FB4E88] p-8 md:p-16 text-[#424242] w-full md:w-1/2">
+            <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]  hover:squircle-border-4 hover:squircle-border-[#FB4E88] p-8 md:p-16 text-[#424242] w-full md:w-1/2">
               <Image
                 src="/Piggy.svg"
                 alt="Savings Options Icon"
@@ -66,7 +66,7 @@ const SavingsOptions = () => {
 
         {/* Right Column */}
         <div className="w-full md:w-5/12 flex flex-col gap-6 md:gap-12">
-          <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:squircle-border-4 hover:squircle-border-[#0CBA65] transition-colors duration-300 p-8 md:p-16 text-[#424242] flex-1">
+          <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:squircle-border-4 hover:squircle-border-[#0CBA65] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] p-8 md:p-16 text-[#424242] flex-1">
             <Image
               src="/colour-open.svg"
               alt="Savings Options Icon"
@@ -81,7 +81,7 @@ const SavingsOptions = () => {
               account or break the vault with a 10% fee.
             </p>
           </div>
-          <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] transition-colors duration-300 p-8 md:p-16 text-[#424242]">
+          <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] p-8 md:p-16 text-[#424242]">
             <Image
               src="/path14.svg"
               alt="Savings Options Icon"
