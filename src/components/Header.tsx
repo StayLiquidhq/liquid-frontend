@@ -1,10 +1,13 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 const Header = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const router = useRouter();
 
   return (
     <motion.header
@@ -43,7 +46,11 @@ const Header = () => {
         <div className="hidden md:block py-8 px-26 text-[#424242] text-xl font-bold squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:text-white transition duration-300">
           <Link href="/support">Support</Link>
         </div>
-        <button className="flex items-center gap-3 py-4 px-6 text-base md:text-xl md:py-8 md:px-26 text-[#424242] font-bold squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:text-white transition duration-300">
+        <button
+          type="button"
+          onClick={() => router.push("/auth")}
+          className="flex items-center gap-3 py-4 px-6 text-base md:text-xl md:py-8 md:px-26 text-[#424242] font-bold squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:text-white transition duration-300"
+        >
           <Image
             src="/google-auth-colour.svg"
             alt="Google Logo"
