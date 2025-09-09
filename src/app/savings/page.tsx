@@ -340,7 +340,7 @@ const SavingsPage = () => {
               onClick={() => setShowCreatePlan(true)}
             >
               <Image
-                src="/vault.svg"
+                src="/Vault.svg"
                 alt="Add Vault Icon"
                 width={40}
                 height={40}
