@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { itemVariants } from "@/app/savings/animation";
+import { useState } from "react";
 
 interface WalletCardProps {
   name: string;
@@ -16,6 +17,12 @@ const WalletCard: React.FC<WalletCardProps> = ({
   icon,
   coinImage,
 }) => {
+  const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+
+  const toggleBalanceVisibility = () => {
+    setIsBalanceVisible(!isBalanceVisible);
+  };
+
   return (
     <motion.div
       className="relative w-full h-[172px] py-[30px] px-6 flex flex-col justify-between items-start squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E] overflow-hidden flex-shrink-0 snap-center"
@@ -34,10 +41,23 @@ const WalletCard: React.FC<WalletCardProps> = ({
           <Image src={icon} alt="Wallet Icon" width={18} height={18} />
           <span className="text-sm">{name}</span>
         </div>
-        <Image src="/Eye.svg" alt="Eye Icon" width={18} height={18} />
+        <Image
+          src={
+            isBalanceVisible
+              ? "/custom-eye-open.svg"
+              : "/custom-eye-closed.svg"
+          }
+          alt="Eye Icon"
+          width={22}
+          height={22}
+          onClick={toggleBalanceVisibility}
+          className="cursor-pointer"
+        />
       </div>
       <div className="relative z-10">
-        <h2 className="text-5xl font-medium">${balance}</h2>
+        <h2 className="text-5xl font-medium">
+          {isBalanceVisible ? `$${balance}` : "******"}
+        </h2>
       </div>
     </motion.div>
   );
