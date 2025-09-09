@@ -1,9 +1,17 @@
+"use client";
 import React from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const Footer = () => {
   return (
-    <footer className="w-[calc(100%-4rem)] mx-auto py-24">
+    <motion.footer
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1, delay: 0.5 }}
+      viewport={{ once: true }}
+      className="w-[calc(100%-4rem)] mx-auto py-24"
+    >
       <div className="flex gap-12">
         <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-16 text-white flex-1 flex justify-between items-end relative overflow-hidden">
           <div className="absolute inset-0 flex justify-center pt-38">
@@ -59,7 +67,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 

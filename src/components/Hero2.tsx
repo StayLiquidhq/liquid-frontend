@@ -1,10 +1,16 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 const Hero2 = () => {
   const [playVideo, setPlayVideo] = useState(false);
 
   return (
-    <section className="w-[calc(100%-4rem)] mx-auto h-[500px] flex justify-center items-center">
+    <motion.section
+      initial={{ opacity: 0, x: 100 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 1 }}
+      className="w-[calc(100%-4rem)] mx-auto h-[500px] flex justify-center items-center"
+    >
       <div className="flex items-center gap-8">
         {/* Left text block */}
         <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] w-[900px] h-[400px] flex flex-col justify-center p-8 text-[#424242]">
@@ -54,7 +60,7 @@ const Hero2 = () => {
           )}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

@@ -1,12 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 const Header = () => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <header className="bg-[#1A1A1A] w-full flex justify-center py-6">
+    <motion.header
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+      className="bg-[#1A1A1A] w-full flex justify-center py-6"
+    >
       <div className="flex items-center gap-6">
             <div
             className="flex items-start gap-2 py-6 px-24 text-[#424242] squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:squircle-[#3086FF] transition-colors duration-1500"
@@ -35,7 +41,7 @@ const Header = () => {
           <span>Login</span>
         </button>
       </div>
-    </header>
+    </motion.header>
   );
 };
 

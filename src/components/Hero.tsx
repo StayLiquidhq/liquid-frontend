@@ -1,8 +1,14 @@
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const Hero = () => {
   return (
-    <section className="relative w-[calc(100%-4rem)] mx-auto h-[500px] p-12 flex flex-col justify-center items-start text-left text-[#424242] squircle squircle-5xl squircle-smooth-xl squircle-[#1E1E1E] overflow-hidden">
+    <motion.section
+      initial={{ opacity: 0, x: -100 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 1 }}
+      className="relative w-[calc(100%-4rem)] mx-auto h-[500px] p-12 flex flex-col justify-center items-start text-left text-[#424242] squircle squircle-5xl squircle-smooth-xl squircle-[#1E1E1E] overflow-hidden"
+    >
       <Image
         src="/white-3d-coin.svg"
         alt="3D Coin"
@@ -16,7 +22,7 @@ const Hero = () => {
         </h1>
         <p className="text-xl mt-4">Zero transaction fees + 2% APY</p>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

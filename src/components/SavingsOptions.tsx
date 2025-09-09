@@ -1,9 +1,17 @@
+"use client";
 import React from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const SavingsOptions = () => {
   return (
-    <section className="w-[calc(100%-4rem)] mx-auto py-16">
+    <motion.section
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1, delay: 0.5 }}
+      viewport={{ once: true }}
+      className="w-[calc(100%-4rem)] mx-auto py-16"
+    >
       <div className="flex flex-wrap md:flex-nowrap gap-12">
         {/* Left Column */}
         <div className="w-full md:w-7/12 flex flex-col gap-12">
@@ -78,7 +86,7 @@ const SavingsOptions = () => {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
