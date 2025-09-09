@@ -41,28 +41,31 @@ const Footer = () => {
           </div>
         </div>
         <div className="flex flex-col gap-12">
-          <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-8 flex items-center justify-center">
+          <div className="group squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-8 flex items-center justify-center transition-all duration-300">
             <Image
               src="/twitter.svg"
               alt="Twitter Icon"
               width={48}
               height={48}
+              className="grayscale group-hover:grayscale-0 transition-all"
              />
           </div>
-          <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-8 flex items-center justify-center">
+          <div className="group squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-8 flex items-center justify-center transition-all duration-300">
             <Image
               src="/discord.svg"
               alt="Discord Icon"
               width={48}
               height={48}
+              className="grayscale group-hover:grayscale-0 transition-all"
             />
           </div>
-          <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-8 flex items-center justify-center">
+          <div className="group squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-8 flex items-center justify-center transition-all duration-300">
             <Image
               src="/youtube.svg"
               alt="YouTube Icon"
               width={48}
               height={48}
+              className="grayscale group-hover:grayscale-0 transition-all"
             />
           </div>
         </div>
