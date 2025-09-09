@@ -9,23 +9,23 @@ const Hero2 = () => {
       initial={{ opacity: 0, x: 100 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 1 }}
-      className="w-[calc(100%-4rem)] mx-auto h-[500px] flex justify-center items-center"
+      className="w-[calc(100%-1.5rem)] md:w-[calc(100%-4rem)] mx-auto md:h-[500px] flex justify-center items-center py-4 md:py-0"
     >
-      <div className="flex items-center gap-8">
+      <div className="flex flex-col-reverse md:flex-row items-center gap-8 md:gap-8 w-full">
         {/* Left text block */}
-        <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] w-[900px] h-[400px] flex flex-col justify-center p-8 text-[#424242]">
-          <p className="text-4xl mb-4">
+        <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] w-full md:w-[900px] h-auto md:h-[400px] flex flex-col justify-center p-8 md:p-12 text-[#424242]">
+          <p className="text-2xl md:text-4xl mb-4 md:mb-4">
             Winning big often comes once in a while but expenses sits daily,
             tackling that is a big flex
           </p>
-          <p className="text-3xl text-[#424242]">
+          <p className="text-lg md:text-3xl text-[#424242]">
             We preserve your wins to last longer and help you hit those big
             target savings that matters.
           </p>
         </div>
 
         {/* Right side: thumbnail */}
-        <div className="relative w-[700px] h-[400px] rounded-[2rem] overflow-hidden bg-black">
+        <div className="relative w-full md:w-[700px] h-[220px] md:h-[400px] rounded-[2rem] overflow-hidden bg-black">
           {playVideo ? (
             <iframe
               className="w-full h-full"
