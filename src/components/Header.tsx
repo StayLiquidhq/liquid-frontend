@@ -41,7 +41,7 @@ const Header = () => {
           <Link href="/learn">Learn</Link>
         </div>
         <div className="hidden md:block py-8 px-26 text-[#424242] text-xl font-bold squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:text-white transition duration-300">
-          <Link href="/terms">Service Agreement</Link>
+          <Link href="/terms">Terms</Link>
         </div>
         <div className="hidden md:block py-8 px-26 text-[#424242] text-xl font-bold squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] hover:text-white transition duration-300">
           <Link href="/support">Support</Link>
