@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Onest } from "next/font/google";
 import "./globals.css";
 import { SquircleProvider } from "./squircle-provider";
 import { ToastProvider } from "./toast-provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const onest = Onest({
+  variable: "--font-onest",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  fallback: ["system-ui", "-apple-system"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -45,9 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <meta name="apple-mobile-web-app-title" content="Liquid" />
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${onest.variable} antialiased`}>
         <SquircleProvider>
           <ToastProvider>{children}</ToastProvider>
         </SquircleProvider>
