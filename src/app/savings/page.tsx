@@ -285,7 +285,7 @@ const SavingsPage = () => {
         throw new Error(data.error || "Failed to sweep wallet");
       }
 
-      showToast("Wallet sweep successful!", "success");
+      showToast("Wallet Refreshed!", "success");
       setRefreshWallets((prev) => !prev);
     } catch (error: any) {
       console.error("Error sweeping wallet:", error);
