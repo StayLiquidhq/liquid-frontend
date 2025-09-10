@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
 import CreatePlan from "@/components/CreatePlan";
@@ -17,6 +17,7 @@ const AuthDetailsPage = () => {
   const router = useRouter();
   const hasRun = useRef(false);
   const { showToast } = useToast();
+  const [isCheckingPlan, setIsCheckingPlan] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -26,21 +27,26 @@ const AuthDetailsPage = () => {
     if (user && !hasRun.current) {
       hasRun.current = true;
       logAuthEvent(supabase, "login");
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
         if (session) {
-          checkUserPlanStatus(session, router, (msg) =>
+          const hasPlan = await checkUserPlanStatus(session, router, (msg) =>
             showToast(msg, "error")
           );
+          if (!hasPlan) {
+            setIsCheckingPlan(false);
+          }
+        } else {
+          setIsCheckingPlan(false);
         }
       });
     }
-  }, [user, loading, supabase, router]);
+  }, [user, loading, supabase, router, showToast]);
 
   const handlePlanCreated = () => {
     router.push("/savings");
   };
 
-  if (loading) {
+  if (loading || isCheckingPlan) {
     return (
       <div className="bg-[#1A1A1A] min-h-screen flex flex-col items-center justify-center text-white">
         <LoadingSpinner />
@@ -102,7 +108,7 @@ const AuthDetailsPage = () => {
           Desktop mode is not available for this application
         </h1>
       </div>
-      {!loading && (
+      {!loading && !isCheckingPlan && (
         <div className="absolute inset-0 bg-[#00000066]  flex items-end justify-center z-50">
           <div className="mb-4" onClick={(e) => e.stopPropagation()}>
             <CreatePlan onClose={() => {}} onPlanCreated={handlePlanCreated} />

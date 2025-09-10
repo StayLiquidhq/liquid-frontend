@@ -3,6 +3,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
 import { useState, useRef } from "react";
+import { checkUserPlanStatus } from "@/utils/auth/helpers";
 import CreatePlan from "@/components/CreatePlan";
 import WalletCard from "@/components/WalletCard";
 import AddFunds from "@/components/AddFunds";
@@ -54,6 +55,7 @@ interface Plan {
 const SavingsPage = () => {
   const { user, loading } = useAuth();
   const { showToast } = useToast();
+  const [isCheckingPlan, setIsCheckingPlan] = useState(true);
   const [showCreatePlan, setShowCreatePlan] = useState(false);
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -74,6 +76,30 @@ const SavingsPage = () => {
   );
   const [filter, setFilter] = useState("All");
   const [isSweeping, setIsSweeping] = useState(false);
+
+  useEffect(() => {
+    const checkPlan = async () => {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        const hasPlan = await checkUserPlanStatus(session, { push: () => {} });
+        if (!hasPlan) {
+          window.location.replace("/auth/details");
+        } else {
+          setIsCheckingPlan(false);
+        }
+      } else {
+        window.location.replace("/auth");
+      }
+    };
+
+    if (user) {
+      checkPlan();
+    }
+  }, [user]);
 
   useEffect(() => {
     const isModalOpen =
@@ -317,7 +343,7 @@ const SavingsPage = () => {
     target: "/colour-target.svg",
   };
 
-  if (loading) {
+  if (loading || isCheckingPlan) {
     return (
       <div className="bg-[#1A1A1A] min-h-screen flex flex-col items-center justify-center text-white">
         <LoadingSpinner />

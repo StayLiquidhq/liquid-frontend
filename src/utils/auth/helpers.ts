@@ -37,7 +37,7 @@ export async function checkUserPlanStatus(
   session: any,
   router: any,
   onError?: (message: string) => void
-) {
+): Promise<boolean> {
   const endpoint = process.env.NEXT_PUBLIC_BASE_URL;
 
   try {
@@ -51,19 +51,19 @@ export async function checkUserPlanStatus(
     if (!response.ok) {
       onError?.("Unable to verify plan status. Please sign in again.");
       router.push("/auth");
-      return;
+      return false;
     }
 
     const { hasPlan } = await response.json();
 
     if (hasPlan) {
       router.push("/savings");
-    } else {
-      router.push("/auth/details");
     }
+    return hasPlan;
   } catch (err) {
     console.error("Error checking plan:", err);
     onError?.("Something went wrong while checking your plan.");
     router.push("/auth");
+    return false;
   }
 }
