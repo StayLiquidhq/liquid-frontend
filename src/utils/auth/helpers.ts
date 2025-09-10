@@ -33,7 +33,11 @@ export async function logAuthEvent(
 }
 
 // 🔹 Helper: Checks user's plan status and redirects based on the result
-export async function checkUserPlanStatus(session: any, router: any) {
+export async function checkUserPlanStatus(
+  session: any,
+  router: any,
+  onError?: (message: string) => void
+) {
   const endpoint = process.env.NEXT_PUBLIC_BASE_URL;
 
   try {
@@ -45,6 +49,7 @@ export async function checkUserPlanStatus(session: any, router: any) {
     });
 
     if (!response.ok) {
+      onError?.("Unable to verify plan status. Please sign in again.");
       router.push("/auth");
       return;
     }
@@ -58,6 +63,7 @@ export async function checkUserPlanStatus(session: any, router: any) {
     }
   } catch (err) {
     console.error("Error checking plan:", err);
+    onError?.("Something went wrong while checking your plan.");
     router.push("/auth");
   }
 }

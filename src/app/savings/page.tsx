@@ -13,6 +13,7 @@ import { createClient } from "@/utils/supabase/client";
 import BreakWallet from "@/components/BreakWallet";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import EditPayout from "@/components/EditPayout";
+import { useToast } from "@/app/toast-provider";
 
 interface Wallet {
   wallet_id: string;
@@ -52,6 +53,7 @@ interface Plan {
 
 const SavingsPage = () => {
   const { user, loading } = useAuth();
+  const { showToast } = useToast();
   const [showCreatePlan, setShowCreatePlan] = useState(false);
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -62,9 +64,9 @@ const SavingsPage = () => {
   const [activeWalletIndex, setActiveWalletIndex] = useState(0);
   const [refreshWallets, setRefreshWallets] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [transactions, setTransactions] = useState<{ [walletId: string]: any[] }>(
-    {}
-  );
+  const [transactions, setTransactions] = useState<{
+    [walletId: string]: any[];
+  }>({});
   const [isInitialTransactionsLoading, setIsInitialTransactionsLoading] =
     useState(true);
   const [transactionsError, setTransactionsError] = useState<string | null>(
@@ -127,6 +129,7 @@ const SavingsPage = () => {
         } catch (error) {
           console.error("Error fetching wallets:", error);
           setWallets([]);
+          showToast("Unable to load wallets. Please try again.", "error");
         }
       }
     };
@@ -165,6 +168,7 @@ const SavingsPage = () => {
         } catch (error) {
           console.error("Error fetching plans:", error);
           setPlans([]);
+          showToast("Unable to load plans. Please try again.", "error");
         }
       }
     };
@@ -221,6 +225,7 @@ const SavingsPage = () => {
           setTransactions(newTransactions);
         } catch (err: any) {
           setTransactionsError(err.message);
+          showToast("Could not load transaction history.", "error");
         }
       }
     };
@@ -282,6 +287,13 @@ const SavingsPage = () => {
         <LoadingSpinner />
       </div>
     );
+  }
+
+  if (!user) {
+    if (typeof window !== "undefined") {
+      window.location.replace("/auth");
+    }
+    return null;
   }
 
   return (

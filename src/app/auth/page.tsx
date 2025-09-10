@@ -3,17 +3,23 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
 import { createClient } from "@/utils/supabase/client";
+import { useToast } from "@/app/toast-provider";
 
 const AuthPage = () => {
   const supabase = createClient();
+  const { showToast } = useToast();
 
   const handleSignIn = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${location.origin}/auth/details`,
-      },
-    });
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${location.origin}/auth/details`,
+        },
+      });
+    } catch (e) {
+      showToast("Failed to start Google sign-in. Please try again.", "error");
+    }
   };
 
   return (
@@ -24,7 +30,6 @@ const AuthPage = () => {
         initial="hidden"
         animate="visible"
       >
-        
         <div className=" w-full max-w-sm mx-auto flex flex-col items-center gap-2 p-2 pt-8">
           <motion.div variants={itemVariants}>
             <Image
@@ -40,12 +45,7 @@ const AuthPage = () => {
               className="flex flex-col items-start gap-6"
               variants={itemVariants}
             >
-              <Image
-                src="/logo.svg"
-                alt="Liquid Logo"
-                width={80}
-                height={80}
-              />
+              <Image src="/logo.svg" alt="Liquid Logo" width={80} height={80} />
               <h1
                 className="text-4xl font-medium leading-tight"
                 style={{ fontFamily: "'Funnel Display', sans-serif" }}

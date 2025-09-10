@@ -7,6 +7,7 @@ import CreatePlan from "@/components/CreatePlan";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useAuth } from "@/utils/hooks/useAuth";
 import { logAuthEvent, checkUserPlanStatus } from "@/utils/auth/helpers";
+import { useToast } from "@/app/toast-provider";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -15,18 +16,25 @@ const AuthDetailsPage = () => {
   const supabase = createClient();
   const router = useRouter();
   const hasRun = useRef(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/auth");
+      return;
+    }
     if (user && !hasRun.current) {
       hasRun.current = true;
       logAuthEvent(supabase, "login");
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
-          checkUserPlanStatus(session, router);
+          checkUserPlanStatus(session, router, (msg) =>
+            showToast(msg, "error")
+          );
         }
       });
     }
-  }, [user, supabase, router]);
+  }, [user, loading, supabase, router]);
 
   const handlePlanCreated = () => {
     router.push("/savings");
