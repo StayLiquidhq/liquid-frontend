@@ -73,6 +73,7 @@ const SavingsPage = () => {
     null
   );
   const [filter, setFilter] = useState("All");
+  const [isSweeping, setIsSweeping] = useState(false);
 
   useEffect(() => {
     const isModalOpen =
@@ -259,6 +260,41 @@ const SavingsPage = () => {
     }
   };
 
+  const handleSweepWallet = async () => {
+    if (!user || wallets.length === 0) return;
+
+    setIsSweeping(true);
+    try {
+      const privyId = user.id;
+      const walletAddress = wallets[activeWalletIndex].address;
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/wallets/wallet-sweeper`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          privy_id: privyId,
+          wallet_address: walletAddress,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to sweep wallet");
+      }
+
+      showToast("Wallet sweep successful!", "success");
+      setRefreshWallets((prev) => !prev);
+    } catch (error: any) {
+      console.error("Error sweeping wallet:", error);
+      showToast(error.message || "An unexpected error occurred.", "error");
+    } finally {
+      setIsSweeping(false);
+    }
+  };
+
   const isAddVaultActive = activeWalletIndex === wallets.length;
   const isBreakButtonDisabled =
     isAddVaultActive || wallets[activeWalletIndex]?.plan_type === "locked";
@@ -395,6 +431,7 @@ const SavingsPage = () => {
           <motion.div
             className="w-full flex items-center ml-4 gap-2 mt-8 mb-4"
             variants={itemVariants}
+            onClick={handleSweepWallet}
           >
             <Image src="/Time.svg" alt="History" width={24} height={24} />
             <span className="text-lg">Transaction History</span>
