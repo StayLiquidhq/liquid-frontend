@@ -18,7 +18,7 @@ const Header = () => {
     >
       <div className="flex items-center justify-between gap-4 md:gap-6 w-[calc(100%-2rem)] md:w-auto">
         <div
-          className="flex items-center gap-3 py-4 px-6 md:py-6 md:px-24 text-[#424242] squircle squircle-7xl squircle-smooth-xl squircle-[#3086FF] md:squircle-[#1E1E1E] transition-colors duration-1500"
+          className="flex items-center gap-3 py-4 px-6 md:py-6 md:px-24 text-[#424242] squircle squircle-7xl squircle-smooth-xl squircle-[#3086FF] md:squircle-[#1E1E1E] md:hover:squircle-[#3086FF] transition-colors duration-1500"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
