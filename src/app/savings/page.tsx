@@ -274,6 +274,10 @@ const SavingsPage = () => {
       const intervalId = setInterval(fetchAllHistories, 120000);
 
       return () => clearInterval(intervalId);
+    } else if (user && wallets.length === 0 && isInitialTransactionsLoading) {
+      // No wallets available: stop the initial loading spinner and clear histories
+      setIsInitialTransactionsLoading(false);
+      setTransactions({});
     }
   }, [user, wallets, isInitialTransactionsLoading]);
 
