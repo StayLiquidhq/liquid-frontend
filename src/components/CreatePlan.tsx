@@ -47,7 +47,7 @@ const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
           <h3 className="text-lg font-medium">Piggy Vest</h3>
           <p className="text-sm text-gray-400">
             Set target amount and payout account or wallet, auto-paid when
-            target reached you can break with a 10% break fee,{" "}
+            target reached you can break with a 2% break fee,{" "}
             <a href="#" className="text-blue-400">
               learn more
             </a>
@@ -91,8 +91,8 @@ const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
           <h3 className="text-lg font-medium">Flexible Vault</h3>
           <p className="text-sm text-gray-400">
             Deposit, set amount you want to receive, when and where. You can
-            change payout wallet or account and break this vault with a 10%
-            break fee,{" "}
+            change payout wallet or account and break this vault with a 2% break
+            fee,{" "}
             <a href="#" className="text-blue-400">
               learn more
             </a>
