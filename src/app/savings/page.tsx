@@ -291,19 +291,30 @@ const SavingsPage = () => {
 
     setIsSweeping(true);
     try {
-      const privyId = user.id;
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) {
+        showToast("Please sign in again.", "error");
+        if (typeof window !== "undefined") window.location.replace("/auth");
+        return;
+      }
       const walletAddress = wallets[activeWalletIndex].address;
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/wallets/wallet-sweeper`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          privy_id: privyId,
-          wallet_address: walletAddress,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/wallets/wallet-sweeper`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            wallet_address: walletAddress,
+          }),
+        }
+      );
 
       const data = await response.json();
 
