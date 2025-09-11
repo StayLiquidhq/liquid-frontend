@@ -3,7 +3,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "./animation";
 import { useState, useRef } from "react";
-import { checkUserPlanStatus } from "@/utils/auth/helpers";
+import { checkUserPlanStatus, logAuthEvent } from "@/utils/auth/helpers";
 import CreatePlan from "@/components/CreatePlan";
 import WalletCard from "@/components/WalletCard";
 import AddFunds from "@/components/AddFunds";
@@ -85,9 +85,14 @@ const SavingsPage = () => {
       } = await supabase.auth.getSession();
 
       if (session) {
+        // Log login event once when arriving authenticated on savings
+        try {
+          await logAuthEvent(supabase, "login");
+        } catch {}
+
         const hasPlan = await checkUserPlanStatus(session, { push: () => {} });
         if (!hasPlan) {
-          window.location.replace("/auth/details");
+          setIsCheckingPlan(false);
         } else {
           setIsCheckingPlan(false);
         }

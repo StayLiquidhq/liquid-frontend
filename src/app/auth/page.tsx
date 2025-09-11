@@ -14,7 +14,7 @@ const AuthPage = () => {
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${location.origin}/auth/details`,
+          redirectTo: `${location.origin}/savings`,
         },
       });
     } catch (e) {
