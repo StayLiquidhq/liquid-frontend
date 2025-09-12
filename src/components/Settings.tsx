@@ -38,13 +38,21 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
       </div>
 
       <div className="w-full flex flex-col gap-3">
-        <div className="w-full flex justify-between items-center p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
+        <div
+          onClick={() =>
+            window.open("https://t.me/+Zid-tDFC5hE4MzA0", "_blank")
+          }
+          className="w-full flex justify-between items-center p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] cursor-pointer hover:opacity-80"
+        >
           <span className="text-lg">Support</span>
         </div>
         <div className="w-full flex justify-between items-center p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
           <span className="text-lg">Terms & Conditions</span>
         </div>
-        <div className="w-full flex justify-between items-center p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
+        <div
+          onClick={() => window.open("https://x.com/savewithliquid", "_blank")}
+          className="w-full flex justify-between items-center p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] cursor-pointer hover:opacity-80"
+        >
           <span className="text-lg">Twitter</span>
         </div>
       </div>
