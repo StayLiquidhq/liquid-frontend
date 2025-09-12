@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { Onest } from "next/font/google";
 import "./globals.css";
 import { SquircleProvider } from "./squircle-provider";
 import { ToastProvider } from "./toast-provider";
+import { Onest } from "next/font/google";
 
 const onest = Onest({
-  variable: "--font-onest",
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  fallback: ["system-ui", "-apple-system"],
-  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -43,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <meta name="apple-mobile-web-app-title" content="Liquid" />
-      <body className={`${onest.variable} antialiased`}>
+      <body className={`${onest.className} antialiased`}>
         <SquircleProvider>
           <ToastProvider>{children}</ToastProvider>
         </SquircleProvider>

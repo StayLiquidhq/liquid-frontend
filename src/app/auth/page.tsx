@@ -46,11 +46,8 @@ const AuthPage = () => {
               variants={itemVariants}
             >
               <Image src="/logo.svg" alt="Liquid Logo" width={80} height={80} />
-              <h1
-                className="text-4xl font-medium leading-tight"
-                style={{ fontFamily: "'Funnel Display', sans-serif" }}
-              >
-                Start saving today and <br /> never run out of liquidity.
+              <h1 className="text-4xl font-medium leading-tight">
+                Start saving today and never run out of liquidity.
               </h1>
             </motion.div>
 
