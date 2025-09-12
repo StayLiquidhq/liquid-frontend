@@ -46,7 +46,7 @@ const SavingsOptions = () => {
                 early with 5% fee.
               </p>
             </div>
-            <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#FB4E88] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]  hover:squircle-border-4 hover:squircle-border-[#FB4E88] p-8 md:p-16 text-[#424242] w-full md:w-1/2">
+            <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]  hover:squircle-border-4 hover:squircle-border-[#FB4E88] p-8 md:p-16 text-[#424242] w-full md:w-1/2">
               <Image
                 src="/Piggy.svg"
                 alt="Savings Options Icon"
@@ -78,7 +78,7 @@ const SavingsOptions = () => {
             </h3>
             <p className="text-base md:text-lg text-[#424242]">
               Set the amount, time, and destination. You can change the payout
-              account or break the vault with a 10% fee.
+              account or break the vault with a 5% fee.
             </p>
           </div>
           <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] p-8 md:p-16 text-[#424242]">

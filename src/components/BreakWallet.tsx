@@ -40,14 +40,17 @@ const BreakWallet: React.FC<BreakWalletProps> = ({
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/break`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ plan_id: planId }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/plans/break`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ plan_id: planId }),
+        }
+      );
 
       const result = await response.json();
 
@@ -142,7 +145,7 @@ const BreakWallet: React.FC<BreakWalletProps> = ({
       <div className="flex flex-col items-center gap-2">
         <h2 className="text-2xl font-medium">Break Savings</h2>
         <p className="text-center text-gray-400">
-          You will be charged 2% for breaking your savings. Are you sure you
+          You will be charged 5% for breaking your savings. Are you sure you
           want to continue?
         </p>
         {error && <p className="text-red-500 text-center">{error}</p>}

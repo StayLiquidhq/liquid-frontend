@@ -41,13 +41,18 @@ const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
         className="flex p-3 items-start gap-[10px] self-stretch squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] cursor-pointer"
       >
         <div className="flex p-2 justify-center items-center squircle squircle-[6px] squircle-smooth-xl squircle-[#FB4E88]">
-          <Image src="/Piggy.svg" alt="Piggy Vest" width={72} height={72} />
+          <Image
+            src="/uncoloured-piggy"
+            alt="Piggy Vest"
+            width={72}
+            height={72}
+          />
         </div>
         <div className="flex flex-col">
           <h3 className="text-lg font-medium">Piggy Bank</h3>
           <p className="text-sm text-gray-400">
-            Set target amount and payout account or wallet, auto-paid when
-            target reached you can break with a 2% break fee,{" "}
+            Set date or target amount and payout wallet, auto-paid when target
+            is reached or picked date is due, you can break with a 5% break fee,{" "}
             <a href="#" className="text-blue-400">
               learn more
             </a>
@@ -91,7 +96,7 @@ const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
           <h3 className="text-lg font-medium">Flexible Vault</h3>
           <p className="text-sm text-gray-400">
             Deposit, set amount you want to receive, when and where. You can
-            change payout wallet or account and break this vault with a 2% break
+            change payout wallet or account and break this vault with a 5% break
             fee,{" "}
             <a href="#" className="text-blue-400">
               learn more
