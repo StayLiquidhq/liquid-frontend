@@ -42,7 +42,7 @@ const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
       >
         <div className="flex p-2 justify-center items-center squircle squircle-[6px] squircle-smooth-xl squircle-[#FB4E88]">
           <Image
-            src="/uncoloured-piggy"
+            src="/uncoloured-piggy.svg"
             alt="Piggy Vest"
             width={72}
             height={72}
