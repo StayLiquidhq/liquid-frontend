@@ -40,11 +40,11 @@ const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
         onClick={() => setSelectedPlan("target")}
         className="flex p-3 items-start gap-[10px] self-stretch squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] cursor-pointer"
       >
-        <div className="flex p-2 justify-center items-center squircle squircle-[6px] squircle-smooth-xl squircle-[#FF692C]">
-          <Image src="/target.svg" alt="Piggy Vest" width={72} height={72} />
+        <div className="flex p-2 justify-center items-center squircle squircle-[6px] squircle-smooth-xl squircle-[#FB4E88]">
+          <Image src="/Piggy.svg" alt="Piggy Vest" width={72} height={72} />
         </div>
         <div className="flex flex-col">
-          <h3 className="text-lg font-medium">Piggy Vest</h3>
+          <h3 className="text-lg font-medium">Piggy Bank</h3>
           <p className="text-sm text-gray-400">
             Set target amount and payout account or wallet, auto-paid when
             target reached you can break with a 2% break fee,{" "}

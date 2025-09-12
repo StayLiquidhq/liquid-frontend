@@ -43,10 +43,10 @@ const SavingsOptions = () => {
               </h3>
               <p className="text-base md:text-lg text-[#424242]">
                 Set a target and payout account. Auto-paid at target, or break
-                early with 10% fee.
+                early with 5% fee.
               </p>
             </div>
-            <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]  hover:squircle-border-4 hover:squircle-border-[#FB4E88] p-8 md:p-16 text-[#424242] w-full md:w-1/2">
+            <div className="squircle squircle-7xl squircle-smooth-xl squircle-[#FB4E88] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]  hover:squircle-border-4 hover:squircle-border-[#FB4E88] p-8 md:p-16 text-[#424242] w-full md:w-1/2">
               <Image
                 src="/Piggy.svg"
                 alt="Savings Options Icon"
@@ -58,7 +58,7 @@ const SavingsOptions = () => {
               </h3>
               <p className="text-base md:text-lg text-[#424242]">
                 Set a date and payout account. Auto-paid on that date, or break
-                early with 10% fee.
+                early with 5% fee.
               </p>
             </div>
           </div>
