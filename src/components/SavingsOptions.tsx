@@ -74,7 +74,7 @@ const SavingsOptions = () => {
               height={48}
             />
             <h3 className="text-2xl md:text-4xl font-semibold mt-6 md:mt-8 mb-3 md:mb-4">
-              Open Vault
+              Flexible Vault
             </h3>
             <p className="text-base md:text-lg text-[#424242]">
               Set the amount, time, and destination. You can change the payout

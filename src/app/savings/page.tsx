@@ -154,7 +154,12 @@ const SavingsPage = () => {
           }
           const data = await response.json();
           if (Array.isArray(data)) {
-            setWallets(data);
+            const sorted = [...data].sort(
+              (a: any, b: any) =>
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+            );
+            setWallets(sorted);
           } else {
             setWallets([]);
           }

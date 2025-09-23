@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
+import { PublicKey } from "@solana/web3.js";
 
 interface SetPayoutProps {
   onClose: () => void;
@@ -26,6 +27,18 @@ const SetPayout: React.FC<SetPayoutProps> = ({
   const [accountName, setAccountName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isValidAddress, setIsValidAddress] = useState(true);
+
+  const isValidSolanaAddress = (address: string): boolean => {
+    const trimmed = address.trim();
+    if (trimmed.length === 0) return true; // don't flag empty input
+    try {
+      const pubkey = new PublicKey(trimmed);
+      return pubkey.toBase58() === trimmed;
+    } catch {
+      return false;
+    }
+  };
 
   const supabase = createClient();
 
@@ -55,6 +68,11 @@ const SetPayout: React.FC<SetPayoutProps> = ({
     if (payoutMethod === "crypto") {
       if (!walletAddress) {
         setError("Wallet address is required.");
+        setIsLoading(false);
+        return;
+      }
+      if (!isValidAddress) {
+        setError("Please enter a valid Solana wallet address.");
         setIsLoading(false);
         return;
       }
@@ -103,7 +121,28 @@ const SetPayout: React.FC<SetPayoutProps> = ({
   };
 
   return (
-    <div className="flex w-[380px] p-6 flex-col items-start gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white max-h-[90vh] overflow-y-auto scrollbar-hide">
+    <div className="flex w-[380px] p-6 flex-col items-start gap-4 relative squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white max-h-[90vh] overflow-y-auto scrollbar-hide">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full text-white hover:opacity-80"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-4 h-4"
+          aria-hidden="true"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
       <div className="w-full flex justify-between items-center">
         <h2 className="text-xl font-medium">
           Set Payout for {planType.charAt(0).toUpperCase() + planType.slice(1)}{" "}
@@ -159,9 +198,17 @@ const SetPayout: React.FC<SetPayoutProps> = ({
             <input
               type="text"
               value={walletAddress}
-              onChange={(e) => setWalletAddress(e.target.value)}
+              onChange={(e) => {
+                const address = e.target.value;
+                setWalletAddress(address);
+                setIsValidAddress(isValidSolanaAddress(address));
+              }}
               placeholder="Enter wallet address"
-              className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white font-mono"
+              className={`w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white font-mono ${
+                isValidAddress
+                  ? "squircle-border-transparent"
+                  : "squircle-border-red-500 squircle-border-2"
+              }`}
             />
           </motion.div>
         ) : (
@@ -217,7 +264,11 @@ const SetPayout: React.FC<SetPayoutProps> = ({
 
       <button
         onClick={handleSubmit}
-        disabled={isLoading || payoutMethod === "fiat"}
+        disabled={
+          isLoading ||
+          payoutMethod === "fiat" ||
+          (payoutMethod === "crypto" && !isValidAddress)
+        }
         className="w-full p-4 squircle-[#0088FF] text-white font-medium squircle squircle-[18px] squircle-smooth-xl disabled:opacity-50"
       >
         {isLoading ? "Creating..." : "Create"}
