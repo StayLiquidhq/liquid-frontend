@@ -29,7 +29,7 @@ const Hero2 = () => {
           {playVideo ? (
             <iframe
               className="w-full h-full"
-              src="https://www.youtube.com/embed/9bZkp7q19f0?autoplay=1"
+              src="https://www.youtube.com/embed/rx2i6EKelwQ?autoplay=1"
               title="YouTube video player"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -38,7 +38,7 @@ const Hero2 = () => {
           ) : (
             <>
               <img
-                src="https://img.youtube.com/vi/9bZkp7q19f0/maxresdefault.jpg"
+                src="https://img.youtube.com/vi/rx2i6EKelwQ/maxresdefault.jpg"
                 alt="Video thumbnail"
                 className="w-full h-full object-cover opacity-60"
               />
