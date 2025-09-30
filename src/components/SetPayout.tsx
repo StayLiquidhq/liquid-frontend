@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
-import Image from "next/image";
 import { PublicKey } from "@solana/web3.js";
 
 interface SetPayoutProps {
@@ -20,11 +19,18 @@ const SetPayout: React.FC<SetPayoutProps> = ({
   const [receivedAmount, setReceivedAmount] = useState("500");
   const [recurrentPayout, setRecurrentPayout] = useState("");
   const [frequency, setFrequency] = useState("Daily");
-  const [payoutTime, setPayoutTime] = useState("07:00");
+  // Payout time/day varies by frequency
+  const [payoutTimeDaily, setPayoutTimeDaily] = useState("07:00");
+  const [payoutDayOfWeek, setPayoutDayOfWeek] = useState("Monday");
+  const [payoutDayOfMonth, setPayoutDayOfMonth] = useState("1");
   const [walletAddress, setWalletAddress] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [bankName, setBankName] = useState("Zenith Bank PLC");
+  const [bankName, setBankName] = useState("");
+  const [bankCode, setBankCode] = useState("");
+  const [banks, setBanks] = useState<Array<{ name: string; code: string }>>([]);
+  const [isValidatingAccount, setIsValidatingAccount] = useState(false);
   const [accountName, setAccountName] = useState("");
+  const [accountError, setAccountError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isValidAddress, setIsValidAddress] = useState(true);
@@ -42,6 +48,54 @@ const SetPayout: React.FC<SetPayoutProps> = ({
 
   const supabase = createClient();
 
+  // Fetch banks list once
+  useEffect(() => {
+    const loadBanks = async () => {
+      try {
+        const res = await fetch("/api/banks", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data?.banks)) {
+          setBanks(data.banks);
+        }
+      } catch {}
+    };
+    loadBanks();
+  }, []);
+
+  // Validate account to fetch account name when inputs are valid
+  useEffect(() => {
+    const maybeValidate = async () => {
+      if (!bankCode || !isValidNuban(accountNumber)) {
+        setAccountName("");
+        setAccountError(null);
+        return;
+      }
+      setIsValidatingAccount(true);
+      try {
+        const params = new URLSearchParams({ accountNumber, bankCode });
+        const res = await fetch(`/api/accounts/validate?${params.toString()}`, {
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAccountName(data?.accountName || "");
+          setAccountError(null);
+        } else {
+          const err = await res.json().catch(() => ({}));
+          setAccountName("");
+          setAccountError(err?.error || "Unable to validate account");
+        }
+      } catch {
+        setAccountName("");
+        setAccountError("Unable to validate account");
+      } finally {
+        setIsValidatingAccount(false);
+      }
+    };
+    maybeValidate();
+  }, [bankCode, accountNumber]);
+
   const handleSubmit = async () => {
     setIsLoading(true);
     setError(null);
@@ -55,13 +109,24 @@ const SetPayout: React.FC<SetPayoutProps> = ({
       return;
     }
 
+    // Map payout "time" based on selected frequency
+    let payoutTimeToSend = "";
+    const normalizedFrequency = frequency.toLowerCase();
+    if (normalizedFrequency === "daily") {
+      payoutTimeToSend = payoutTimeDaily;
+    } else if (normalizedFrequency === "weekly") {
+      payoutTimeToSend = payoutDayOfWeek; // e.g., Monday
+    } else if (normalizedFrequency === "monthly") {
+      payoutTimeToSend = payoutDayOfMonth; // e.g., "15"
+    }
+
     const payload: any = {
       name: name,
       plan_type: planType,
       received_amount: parseFloat(receivedAmount),
       recurrent_payout: parseFloat(recurrentPayout),
-      frequency: frequency.toLowerCase(),
-      payout_time: payoutTime,
+      frequency: normalizedFrequency,
+      payout_time: payoutTimeToSend,
       payout_method: payoutMethod,
     };
 
@@ -78,14 +143,17 @@ const SetPayout: React.FC<SetPayoutProps> = ({
       }
       payload.payout_wallet_address = walletAddress;
     } else {
-      if (!accountNumber || !bankName || !accountName) {
-        setError("All bank details are required.");
+      if (!hasSelectedBank || !isValidNuban(accountNumber)) {
+        setError(
+          "Please enter a valid 10-digit account number and select a bank."
+        );
         setIsLoading(false);
         return;
       }
       payload.payout_account_number = accountNumber;
       payload.bank_name = bankName;
-      payload.account_name = accountName;
+      payload.bank_code = bankCode;
+      if (accountName) payload.account_name = accountName;
     }
 
     try {
@@ -119,6 +187,17 @@ const SetPayout: React.FC<SetPayoutProps> = ({
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: 20 },
   };
+
+  // Simple validations
+  const isValidNuban = (val: string) => /^\d{10}$/.test(val.trim());
+  const hasSelectedBank = bankCode.trim().length > 0;
+  const showAccountName = hasSelectedBank && isValidNuban(accountNumber);
+  const isFiatValid =
+    isValidNuban(accountNumber) &&
+    hasSelectedBank &&
+    !!accountName &&
+    !accountError;
+  const isCryptoValid = walletAddress.trim().length > 0 && isValidAddress;
 
   return (
     <div className="flex w-[380px] p-6 flex-col items-start gap-4 relative squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white max-h-[90vh] overflow-y-auto scrollbar-hide">
@@ -218,12 +297,64 @@ const SetPayout: React.FC<SetPayoutProps> = ({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="w-full"
+            className="w-full flex flex-col gap-3"
           >
-            <div className="flex items-center gap-3 p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white">
-              <Image src="/Info.svg" alt="Info" width={24} height={24} />
-              <span>Coming this November</span>
+            <div className="w-full flex flex-col gap-2">
+              <label className="text-sm text-gray-400">
+                Payout Account Number (NGN)
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={accountNumber}
+                onChange={(e) =>
+                  setAccountNumber(e.target.value.replace(/\D/g, ""))
+                }
+                placeholder="Enter 10-digit account number"
+                className={`w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white ${
+                  accountNumber && !isValidNuban(accountNumber)
+                    ? "squircle-border-red-500 squircle-border-2"
+                    : ""
+                }`}
+              />
             </div>
+
+            <div className="w-full flex flex-col gap-2">
+              <label className="text-sm text-gray-400">Account Details</label>
+              <select
+                value={bankCode}
+                onChange={(e) => {
+                  const code = e.target.value;
+                  setBankCode(code);
+                  const selected = banks.find((b) => b.code === code);
+                  setBankName(selected?.name || "");
+                }}
+                className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white appearance-none"
+              >
+                <option value="">Select Bank</option>
+                {banks.map((b) => (
+                  <option key={b.code} value={b.code}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {showAccountName && (
+              <div className="w-full flex flex-col gap-2">
+                <label className="text-sm text-gray-400">Account Name</label>
+                <input
+                  type="text"
+                  value={accountName}
+                  readOnly
+                  disabled={isValidatingAccount}
+                  className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white opacity-80"
+                />
+                {accountError && (
+                  <span className="text-red-500 text-xs">{accountError}</span>
+                )}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -253,21 +384,88 @@ const SetPayout: React.FC<SetPayoutProps> = ({
       </div>
 
       <div className="w-full flex flex-col gap-2">
-        <label className="text-sm text-gray-400">Payout Time</label>
-        <input
-          type="time"
-          value={payoutTime}
-          onChange={(e) => setPayoutTime(e.target.value)}
-          className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none"
-        />
+        <label className="text-sm text-gray-400">
+          {frequency === "Daily"
+            ? "Payout Time (UTC)"
+            : frequency === "Weekly"
+            ? "Payout Day (Week)"
+            : "Payout Day (Month)"}
+        </label>
+        <AnimatePresence mode="wait">
+          {frequency === "Daily" && (
+            <motion.div
+              key="daily-time"
+              variants={inputVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full"
+            >
+              <input
+                type="time"
+                value={payoutTimeDaily}
+                onChange={(e) => setPayoutTimeDaily(e.target.value)}
+                className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none"
+              />
+            </motion.div>
+          )}
+          {frequency === "Weekly" && (
+            <motion.div
+              key="weekly-day"
+              variants={inputVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full"
+            >
+              <select
+                value={payoutDayOfWeek}
+                onChange={(e) => setPayoutDayOfWeek(e.target.value)}
+                className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none"
+              >
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+              </select>
+            </motion.div>
+          )}
+          {frequency === "Monthly" && (
+            <motion.div
+              key="monthly-day"
+              variants={inputVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full"
+            >
+              <select
+                value={payoutDayOfMonth}
+                onChange={(e) => setPayoutDayOfMonth(e.target.value)}
+                className="w-full p-4 text-lg squircle-[#252525]  squircle squircle-[18px] squircle-smooth-xl text-white appearance-none"
+              >
+                {Array.from({ length: 31 }, (_, i) => String(i + 1)).map(
+                  (d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  )
+                )}
+              </select>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <button
         onClick={handleSubmit}
         disabled={
           isLoading ||
-          payoutMethod === "fiat" ||
-          (payoutMethod === "crypto" && !isValidAddress)
+          (payoutMethod === "crypto" && !isCryptoValid) ||
+          (payoutMethod === "fiat" && !isFiatValid)
         }
         className="w-full p-4 squircle-[#0088FF] text-white font-medium squircle squircle-[18px] squircle-smooth-xl disabled:opacity-50"
       >

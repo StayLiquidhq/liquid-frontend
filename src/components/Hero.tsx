@@ -21,7 +21,7 @@ const Hero = () => {
           Save money today <br /> and never run out <br /> of liquidity
         </h1>
         <p className="text-lg md:text-xl mt-4 md:mt-4">
-          Zero transaction fees + 2% APY
+          Zero transaction fees + 4% APY
         </p>
       </div>
     </motion.section>

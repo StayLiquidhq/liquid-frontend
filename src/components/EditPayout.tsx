@@ -123,6 +123,17 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
     exit: { opacity: 0, y: 20 },
   };
 
+  const toOrdinal = (value: string): string => {
+    const n = parseInt(value, 10);
+    if (!Number.isFinite(n)) return value;
+    const j = n % 10;
+    const k = n % 100;
+    if (j === 1 && k !== 11) return `${n}st`;
+    if (j === 2 && k !== 12) return `${n}nd`;
+    if (j === 3 && k !== 13) return `${n}rd`;
+    return `${n}th`;
+  };
+
   if (!plan) {
     return (
       <div className="flex w-[380px] p-6 flex-col items-center justify-center gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
@@ -243,11 +254,30 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
             />
           </div>
           <div className="w-full flex flex-col gap-2 opacity-50">
-            <label className="text-sm text-gray-400">Payout Time</label>
+            <label className="text-sm text-gray-400">
+              {plan.frequency === "daily"
+                ? "Payout Time"
+                : plan.frequency === "weekly"
+                ? "Payout Day (Week)"
+                : plan.frequency === "monthly"
+                ? "Payout Day (Month)"
+                : "Payout Time"}
+            </label>
             <input
               type="text"
-              value={`${plan.payout_time} (UTC)` || ""}
-              className="w-full p-4 text-lg squircle squircle-[18px] squircle-[#252525] squircle-smooth-xl text-white"
+              value={(() => {
+                if (plan.frequency === "daily") {
+                  return plan.payout_time ? `${plan.payout_time} (UTC)` : "";
+                }
+                if (plan.frequency === "weekly") {
+                  return plan.payout_time || ""; // e.g., Monday
+                }
+                if (plan.frequency === "monthly") {
+                  return plan.payout_time ? toOrdinal(plan.payout_time) : ""; // e.g., 15th
+                }
+                return plan.payout_time || "";
+              })()}
+              className="w-full p-4 text-lg squircle squircle-[18px] squircle-[#252525] squircle-smooth-xl text-white capitalize"
               disabled
             />
           </div>
