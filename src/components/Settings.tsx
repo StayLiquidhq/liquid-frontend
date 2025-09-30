@@ -13,6 +13,19 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
     await signOut();
     onClose();
   };
+  const handleInvite = () => {
+    const baseUrl =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://savewithliquid.xyz";
+    const referral = user?.id ? `/?ref=${encodeURIComponent(user.id)}` : "";
+    const appUrl = `${baseUrl}${referral}`;
+    const tweet = `Liquid on Solana: fast, safe, tamper-proof liquidity. No security worries.\n\nVaults: control when/how you spend.\nPiggy Bank: save by target amount or date.\n\nJoin me on Liquid ${appUrl} \n#Solana #DeFi #Savings #Liquidity`;
+    const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      tweet
+    )}`;
+    window.open(intent, "_blank");
+  };
   return (
     <div className="flex w-[380px] p-6 flex-col items-start gap-6 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
       <div className="w-full flex justify-between items-start">
@@ -36,6 +49,14 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           </div>
         </div>
       </div>
+
+      <button
+        onClick={handleInvite}
+        className="w-full p-4 text-white font-medium squircle squircle-[18px] squircle-[#1DA1F2] squircle-smooth-xl hover:opacity-90 flex items-center justify-center gap-2"
+      >
+        <Image src="/twitter.svg" alt="Twitter" width={18} height={18} />
+        Invite a Friend
+      </button>
 
       <div className="w-full flex flex-col gap-3">
         <div
