@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { PublicKey } from "@solana/web3.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
+import { useToast } from "@/app/toast-provider";
 
 interface Plan {
   id: string;
@@ -35,10 +36,15 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
   const [payoutMethod, setPayoutMethod] = useState("crypto");
   const [walletAddress, setWalletAddress] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [bankName, setBankName] = useState("Zenith Bank PLC");
+  const [bankName, setBankName] = useState("");
+  const [bankCode, setBankCode] = useState("");
+  const [banks, setBanks] = useState<Array<{ name: string; code: string }>>([]);
   const [accountName, setAccountName] = useState("");
+  const [isValidatingAccount, setIsValidatingAccount] = useState(false);
+  const [accountError, setAccountError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidAddress, setIsValidAddress] = useState(true);
+  const { showToast } = useToast();
 
   const isValidSolanaAddress = (address: string): boolean => {
     const trimmed = address.trim();
@@ -59,9 +65,62 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
       setIsValidAddress(isValidSolanaAddress(initialAddress));
       setAccountNumber(plan.payout_account_number || "");
       setAccountName(plan.account_name || "");
-      setBankName(plan.bank_name || "Zenith Bank PLC");
+      setBankName(plan.bank_name || "");
     }
   }, [plan]);
+
+  // Fetch banks list once
+  useEffect(() => {
+    const loadBanks = async () => {
+      try {
+        const res = await fetch("/api/banks", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data?.banks)) setBanks(data.banks);
+      } catch {}
+    };
+    loadBanks();
+  }, []);
+
+  // Try map existing bankName to bankCode when list loads
+  useEffect(() => {
+    if (bankName && !bankCode && banks.length) {
+      const match = banks.find(
+        (b) => b.name.toLowerCase() === bankName.toLowerCase()
+      );
+      if (match) setBankCode(match.code);
+    }
+  }, [banks, bankName, bankCode]);
+
+  // Validate account and set accountName
+  useEffect(() => {
+    const maybeValidate = async () => {
+      if (!bankCode || !/^\d{10}$/.test(accountNumber.trim())) {
+        setAccountError(null);
+        return;
+      }
+      setIsValidatingAccount(true);
+      try {
+        const params = new URLSearchParams({ accountNumber, bankCode });
+        const res = await fetch(`/api/accounts/validate?${params.toString()}`, {
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAccountName(data?.accountName || "");
+          setAccountError(null);
+        } else {
+          const err = await res.json().catch(() => ({}));
+          setAccountError(err?.error || "Unable to validate account");
+        }
+      } catch {
+        setAccountError("Unable to validate account");
+      } finally {
+        setIsValidatingAccount(false);
+      }
+    };
+    maybeValidate();
+  }, [bankCode, accountNumber]);
 
   const handleSave = async () => {
     const supabase = createClient();
@@ -78,15 +137,30 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
 
       if (payoutMethod === "crypto") {
         if (!isValidAddress) {
-          alert("Please enter a valid Solana wallet address.");
+          showToast("Please enter a valid Solana wallet address.", "error");
           setIsLoading(false);
           return;
         }
         updateData.payout_wallet_address = walletAddress;
       } else {
+        // Require valid bank + 10-digit account + validated account name
+        if (
+          !bankCode ||
+          !/^\d{10}$/.test(accountNumber) ||
+          !accountName ||
+          accountError
+        ) {
+          showToast(
+            "Please select bank, enter 10-digit account number, and validate account.",
+            "error"
+          );
+          setIsLoading(false);
+          return;
+        }
         updateData.payout_account_number = accountNumber;
         updateData.bank_name = bankName;
         updateData.account_name = accountName;
+        updateData.bank_code = bankCode;
       }
 
       try {
@@ -103,14 +177,15 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
         );
 
         if (!response.ok) {
-          throw new Error("Failed to update plan");
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData?.error || "Failed to update plan");
         }
 
-        alert("Payout updated successfully!");
+        showToast("Payout updated successfully!", "success");
         onClose();
       } catch (error) {
         console.error("Error updating plan:", error);
-        alert("Failed to update payout.");
+        showToast("Failed to update payout.", "error");
       } finally {
         setIsLoading(false);
       }
@@ -223,12 +298,64 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="w-full"
+            className="w-full flex flex-col gap-3"
           >
-            <div className="flex items-center gap-3 p-4 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white">
-              <Image src="/Info.svg" alt="Info" width={24} height={24} />
-              <span>Coming this November</span>
+            <div className="w-full flex flex-col gap-2">
+              <label className="text-sm text-gray-400">
+                Payout Account Number (NGN)
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={accountNumber}
+                onChange={(e) =>
+                  setAccountNumber(e.target.value.replace(/\D/g, ""))
+                }
+                placeholder="Enter 10-digit account number"
+                className={`w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white ${
+                  accountNumber && !/^\d{10}$/.test(accountNumber)
+                    ? "squircle-border-red-500 squircle-border-2"
+                    : ""
+                }`}
+              />
             </div>
+
+            <div className="w-full flex flex-col gap-2">
+              <label className="text-sm text-gray-400">Account Details</label>
+              <select
+                value={bankCode}
+                onChange={(e) => {
+                  const code = e.target.value;
+                  setBankCode(code);
+                  const selected = banks.find((b) => b.code === code);
+                  setBankName(selected?.name || "");
+                }}
+                className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white appearance-none"
+              >
+                <option value="">Select Bank</option>
+                {banks.map((b) => (
+                  <option key={b.code} value={b.code}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {bankCode && /^\d{10}$/.test(accountNumber) && (
+              <div className="w-full flex flex-col gap-2">
+                <label className="text-sm text-gray-400">Account Name</label>
+                <input
+                  type="text"
+                  value={accountName}
+                  readOnly
+                  disabled={isValidatingAccount}
+                  className="w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white opacity-80"
+                />
+                {accountError && (
+                  <span className="text-red-500 text-xs">{accountError}</span>
+                )}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -323,8 +450,13 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
         onClick={handleSave}
         disabled={
           isLoading ||
-          payoutMethod === "fiat" ||
-          (payoutMethod === "crypto" && !isValidAddress)
+          (payoutMethod === "crypto" && !isValidAddress) ||
+          (payoutMethod === "fiat" &&
+            (!bankCode ||
+              !/^\d{10}$/.test(accountNumber) ||
+              !accountName ||
+              !!accountError ||
+              isValidatingAccount))
         }
         className="w-full p-4 text-white font-medium squircle squircle-[18px] squircle-smooth-xl squircle-[#0088FF] disabled:opacity-50"
       >
