@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
+import { useToast } from "@/app/toast-provider";
 import { PublicKey } from "@solana/web3.js";
 
 interface SetPayoutProps {
@@ -47,6 +48,7 @@ const SetPayout: React.FC<SetPayoutProps> = ({
   };
 
   const supabase = createClient();
+  const { showToast } = useToast();
 
   // Fetch banks list once
   useEffect(() => {
@@ -171,7 +173,14 @@ const SetPayout: React.FC<SetPayoutProps> = ({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create plan.");
+        const msg = errorData.error || "Failed to create plan.";
+        if (
+          typeof msg === "string" &&
+          msg.toLowerCase().includes("plan limit")
+        ) {
+          showToast(msg, "error");
+        }
+        throw new Error(msg);
       }
 
       onPlanCreated();
