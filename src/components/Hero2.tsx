@@ -38,7 +38,7 @@ const Hero2 = () => {
           ) : (
             <>
               <img
-                src="https://img.youtube.com/vi/NypekMdk32c/maxresdefault.jpg"
+                src="/twitter-image.png"
                 alt="Video thumbnail"
                 className="w-full h-full object-cover opacity-60"
               />
