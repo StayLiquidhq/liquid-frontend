@@ -141,6 +141,7 @@ const SavingsPage = () => {
           method: "GET",
           headers,
         });
+        if (!coingeckoResponse.ok) throw new Error("coingecko error");
         const coingeckoData = await coingeckoResponse.json();
         const usdcToUsdRate = coingeckoData?.["usd-coin"]?.usd ?? 1;
 
@@ -149,14 +150,17 @@ const SavingsPage = () => {
           "8548cf6e8ed919764e9f1843";
         const exchangeRateUrl = `https://v6.exchangerate-api.com/v6/${exchangeRateApiKey}/latest/USD`;
         const exchangeRateResponse = await fetch(exchangeRateUrl);
+        if (!exchangeRateResponse.ok) throw new Error("fx api error");
         const exchangeRateData = await exchangeRateResponse.json();
         const originalUsdToNgnRate = exchangeRateData?.conversion_rates?.NGN;
-        if (!originalUsdToNgnRate) return;
+        if (!originalUsdToNgnRate) throw new Error("missing NGN rate");
         const adjustedUsdToNgnRate = originalUsdToNgnRate - 20;
 
         setUsdcToNgnRate(usdcToUsdRate * adjustedUsdToNgnRate);
       } catch (error) {
         console.error("Failed to fetch FX rates:", error);
+        // Fallback: show amounts in USDC (no NGN conversion)
+        setUsdcToNgnRate(null);
       }
     };
 
