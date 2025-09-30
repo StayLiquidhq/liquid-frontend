@@ -76,6 +76,7 @@ const SavingsPage = () => {
   );
   const [filter, setFilter] = useState("All");
   const [isSweeping, setIsSweeping] = useState(false);
+  const [usdcToNgnRate, setUsdcToNgnRate] = useState<number | null>(null);
 
   useEffect(() => {
     const checkPlan = async () => {
@@ -125,6 +126,42 @@ const SavingsPage = () => {
     showBreakWallet,
     showEditPayout,
   ]);
+
+  // Fetch FX rates to display NGN equivalent for fiat payouts
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const coingeckoUrl =
+          "https://api.coingecko.com/api/v3/simple/price?ids=usd-coin&vs_currencies=usd";
+        const headers: Record<string, string> = { accept: "application/json" };
+        const cgKey = process.env.NEXT_PUBLIC_COINGECKO_API_KEY;
+        if (cgKey) headers["x-cg-demo-api-key"] = cgKey;
+
+        const coingeckoResponse = await fetch(coingeckoUrl, {
+          method: "GET",
+          headers,
+        });
+        const coingeckoData = await coingeckoResponse.json();
+        const usdcToUsdRate = coingeckoData?.["usd-coin"]?.usd ?? 1;
+
+        const exchangeRateApiKey =
+          process.env.NEXT_PUBLIC_EXCHANGERATE_API_KEY ||
+          "8548cf6e8ed919764e9f1843";
+        const exchangeRateUrl = `https://v6.exchangerate-api.com/v6/${exchangeRateApiKey}/latest/USD`;
+        const exchangeRateResponse = await fetch(exchangeRateUrl);
+        const exchangeRateData = await exchangeRateResponse.json();
+        const originalUsdToNgnRate = exchangeRateData?.conversion_rates?.NGN;
+        if (!originalUsdToNgnRate) return;
+        const adjustedUsdToNgnRate = originalUsdToNgnRate - 20;
+
+        setUsdcToNgnRate(usdcToUsdRate * adjustedUsdToNgnRate);
+      } catch (error) {
+        console.error("Failed to fetch FX rates:", error);
+      }
+    };
+
+    fetchRates();
+  }, []);
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -537,30 +574,44 @@ const SavingsPage = () => {
                   No transactions yet.
                 </div>
               ) : (
-                filteredTransactions.map((tx) => (
-                  <div
-                    key={tx.id}
-                    className="w-full flex justify-between items-center px-3 py-[18px] squircle squircle-4xl squircle-smooth-xl squircle-[#242424]"
-                  >
-                    <div className="flex flex-col items-start gap-1">
-                      <span className="text-sm capitalize">
-                        {tx.type === "credit" ? "Received" : "Sent"}
-                      </span>
-                      <span className="text-xl font-medium">
-                        {tx.type === "debit" ? "-" : "+"}${tx.amount}
-                      </span>
+                filteredTransactions.map((tx) => {
+                  const isFiatPayout =
+                    Boolean(tx.fiat_transaction_id) ||
+                    (typeof tx.description === "string" &&
+                      tx.description.toLowerCase().includes("fiat payout"));
+                  const formattedNgnAmount =
+                    isFiatPayout && usdcToNgnRate
+                      ? new Intl.NumberFormat("en-NG", {
+                          style: "currency",
+                          currency: "NGN",
+                        }).format((Number(tx.amount) || 0) * usdcToNgnRate)
+                      : null;
+                  return (
+                    <div
+                      key={tx.id}
+                      className="w-full flex justify-between items-center px-3 py-[18px] squircle squircle-4xl squircle-smooth-xl squircle-[#242424]"
+                    >
+                      <div className="flex flex-col items-start gap-1">
+                        <span className="text-sm capitalize">
+                          {tx.type === "credit" ? "Received" : "Sent"}
+                        </span>
+                        <span className="text-xl font-medium">
+                          {tx.type === "debit" ? "-" : "+"}${tx.amount}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-end text-xs text-gray-400 gap-1">
+                        <span>
+                          {formattedNgnAmount
+                            ? `≈ ${formattedNgnAmount}`
+                            : `≈ ${tx.amount}${tx.currency} from`}
+                        </span>
+                        <span className="truncate max-w-[120px]">
+                          {tx.description}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-end text-xs text-gray-400 gap-1">
-                      <span>
-                        ≈ {tx.amount}
-                        {tx.currency} from
-                      </span>
-                      <span className="truncate max-w-[120px]">
-                        {tx.description}
-                      </span>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </motion.div>
