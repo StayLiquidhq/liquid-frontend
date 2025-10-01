@@ -3,6 +3,7 @@ import "./globals.css";
 import { SquircleProvider } from "./squircle-provider";
 import { ToastProvider } from "./toast-provider";
 import { Onest } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next"
 
 const onest = Onest({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
       <body className={`${onest.className} antialiased`}>
         <SquircleProvider>
           <ToastProvider>{children}</ToastProvider>
+          <Analytics />
         </SquircleProvider>
       </body>
     </html>
