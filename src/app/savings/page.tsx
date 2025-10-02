@@ -79,6 +79,19 @@ const SavingsPage = () => {
   const [usdcToNgnRate, setUsdcToNgnRate] = useState<number | null>(null);
 
   useEffect(() => {
+    if (loading || isCheckingPlan) {
+      const timer = setTimeout(() => {
+        if (loading || isCheckingPlan) {
+          showToast("Session timed out. Please log in again.", "error");
+          window.location.replace("/auth");
+        }
+      }, 10000); // 10 seconds timeout
+
+      return () => clearTimeout(timer);
+    }
+  }, [loading, isCheckingPlan, showToast]);
+
+  useEffect(() => {
     const checkPlan = async () => {
       const supabase = createClient();
       const {
@@ -521,12 +534,26 @@ const SavingsPage = () => {
             </button>
           </motion.div>
           <motion.div
-            className="w-full flex items-center ml-4 gap-2 mt-8 mb-4"
+            className="w-full flex items-center justify-between mt-8 mb-4"
             variants={itemVariants}
-            onClick={handleSweepWallet}
           >
-            <Image src="/Time.svg" alt="History" width={24} height={24} />
-            <span className="text-lg">Transaction History</span>
+            <div className="flex items-center ml-4 gap-2">
+              <Image src="/Time.svg" alt="History" width={24} height={24} />
+              <span className="text-lg">Transaction History</span>
+            </div>
+            <button
+              onClick={handleSweepWallet}
+              className="p-2 rounded-full hover:bg-[#242424] disabled:opacity-50 mr-4"
+              disabled={isSweeping}
+            >
+              {isSweeping ? (
+                <div className="w-6 h-6">
+                  <LoadingSpinner />
+                </div>
+              ) : (
+                <Image src="/Time.svg" alt="Refresh" width={24} height={24} />
+              )}
+            </button>
           </motion.div>
           <motion.div
             className="w-full flex flex-col items-start gap-[15px] self-stretch p-[15px] squircle squircle-4xl squircle-smooth-xl squircle-[#1E1E1E]"
