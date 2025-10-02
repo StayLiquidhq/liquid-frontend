@@ -546,13 +546,13 @@ const SavingsPage = () => {
               className="p-2 rounded-full hover:bg-[#242424] disabled:opacity-50 mr-4"
               disabled={isSweeping}
             >
-              {isSweeping ? (
-                <div className="w-6 h-6">
-                  <LoadingSpinner />
-                </div>
-              ) : (
-                <Image src="/Time.svg" alt="Refresh" width={24} height={24} />
-              )}
+              <Image
+                src="/refresh.svg"
+                alt="Refresh"
+                width={24}
+                height={24}
+                className={isSweeping ? "animate-spin" : ""}
+              />
             </button>
           </motion.div>
           <motion.div
