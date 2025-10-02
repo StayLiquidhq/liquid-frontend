@@ -218,7 +218,7 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
   }
 
   return (
-    <div className="flex w-[380px] p-6 flex-col items-start gap-4 relative squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
+    <div className="flex w-[380px] p-6 flex-col items-start gap-4 relative squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white max-h-[85vh] overflow-y-auto">
       <button
         type="button"
         aria-label="Close"

@@ -85,7 +85,7 @@ const SavingsPage = () => {
           showToast("Session timed out. Please log in again.", "error");
           window.location.replace("/auth");
         }
-      }, 10000); // 10 seconds timeout
+      }, 6000); // 6 seconds timeout
 
       return () => clearTimeout(timer);
     }
