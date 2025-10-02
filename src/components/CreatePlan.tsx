@@ -33,7 +33,7 @@ const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
   }
 
   return (
-    <div className="flex w-[380px] p-6 flex-col items-start gap-[18px] squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
+    <div className="flex w-[380px] p-6 flex-col items-start gap-[18px] squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white overflow-hidden">
       <h2 className="text-2xl font-medium">Create a vault</h2>
 
       <div
