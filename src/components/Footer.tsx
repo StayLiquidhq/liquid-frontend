@@ -68,7 +68,12 @@ const Footer = () => {
           </div>
         </div>
         <div className="flex flex-row md:flex-col gap-4 md:gap-12 justify-center items-center order-1 md:order-2">
-          <div className="group squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-6 md:p-8 flex items-center justify-center transition-all duration-300">
+            <a
+            href="https://x.com/savewithliquid"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-6 md:p-8 flex items-center justify-center transition-all duration-300"
+            >
             <Image
               src="/twitter.svg"
               alt="Twitter Icon"
@@ -76,8 +81,13 @@ const Footer = () => {
               height={40}
               className="grayscale group-hover:grayscale-0 transition-all"
             />
-          </div>
-          <div className="group squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-6 md:p-8 flex items-center justify-center transition-all duration-300">
+            </a>
+            <a
+            href="https://t.me/+Zid-tDFC5hE4MzA0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-6 md:p-8 flex items-center justify-center transition-all duration-300"
+            >
             <Image
               src="/discord.svg"
               alt="Discord Icon"
@@ -85,8 +95,13 @@ const Footer = () => {
               height={40}
               className="grayscale group-hover:grayscale-0 transition-all"
             />
-          </div>
-          <div className="group squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-6 md:p-8 flex items-center justify-center transition-all duration-300">
+            </a>
+            <a
+            href="https://youtube.com/playlist?list=PLWQM5h9uKn0XrAFZFKnCO7oTWH_UbwlBx&si=xNn6q5fCuzCS6Q8x"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group squircle squircle-7xl squircle-smooth-xl squircle-[#1E1E1E] p-6 md:p-8 flex items-center justify-center transition-all duration-300"
+            >
             <Image
               src="/youtube.svg"
               alt="YouTube Icon"
@@ -94,7 +109,7 @@ const Footer = () => {
               height={40}
               className="grayscale group-hover:grayscale-0 transition-all"
             />
-          </div>
+            </a>
         </div>
       </div>
       <p className="mt-6 text-center text-[#424242] md:hidden">
