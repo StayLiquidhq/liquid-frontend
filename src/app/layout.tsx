@@ -3,7 +3,8 @@ import "./globals.css";
 import { SquircleProvider } from "./squircle-provider";
 import { ToastProvider } from "./toast-provider";
 import { Onest } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
+import { PostHogProvider } from './providers';
 
 const onest = Onest({
   subsets: ["latin"],
@@ -43,7 +44,7 @@ export default function RootLayout({
       <meta name="apple-mobile-web-app-title" content="Liquid" />
       <body className={`${onest.className} antialiased`}>
         <SquircleProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider><PostHogProvider>{children}</PostHogProvider></ToastProvider>
           <Analytics />
         </SquircleProvider>
       </body>
