@@ -43,10 +43,12 @@ export default function RootLayout({
     <html lang="en">
       <meta name="apple-mobile-web-app-title" content="Liquid" />
       <body className={`${onest.className} antialiased`}>
+        <PostHogProvider>
         <SquircleProvider>
-          <ToastProvider><PostHogProvider>{children}</PostHogProvider></ToastProvider>
+          <ToastProvider>{children}</ToastProvider>
           <Analytics />
         </SquircleProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
