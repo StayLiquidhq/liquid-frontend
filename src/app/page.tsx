@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import AIHiddenExplainer from "@/components/AIHiddenExplainer";
 
 export const metadata: Metadata = {
-  title: "Turning everyday to payday.",
+  title: "Liquid - Turning everyday to payday.",
   description:
     "Hold your salary or big payouts in Liquid so you don’t spend it at once. Stream money back to yourself daily, weekly, or monthly.",
   alternates: { canonical: "/" },
