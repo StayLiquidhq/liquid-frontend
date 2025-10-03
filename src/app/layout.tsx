@@ -45,7 +45,7 @@ export default function RootLayout({
       <body className={`${onest.className} antialiased`}>
         <SquircleProvider>
           <ToastProvider>{children}</ToastProvider>
-          <GoogleAnalytics gaId="G-BR7E6D2HNF" />
+          <GoogleAnalytics gaId="G-NFBESZD60N" />
           <Analytics />
         </SquircleProvider>
       </body>
