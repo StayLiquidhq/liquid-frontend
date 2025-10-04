@@ -14,10 +14,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Liquid — Save big wins. Stream income back",
     description:
-      "Automate discipline with Liquid. Choose a schedule and stream funds back.",
+      "Hold your salary or big payouts in Liquid so you don’t spend it at once.",
     images: [
       {
-        url: "/liquid-twitter.png",
+        url: "/frame.png",
         width: 1200,
         height: 630,
         alt: "Liquid App",

@@ -43,7 +43,7 @@ export const metadata: Metadata = {
       "Hold your money after big wins or salary and stream it back daily, weekly or monthly.",
     images: [
       {
-        url: "/liquid-twitter.png",
+        url: "/frame.png",
         width: 1200,
         height: 630,
         alt: "Liquid App",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     title: "Liquid — Turning everyday to payday.",
     description:
       "Save without temptation. Stream your funds back to yourself on a schedule.",
-    images: ["/liquid-twitter.png"],
+    images: ["/frame.png"],
   },
   alternates: {
     canonical: "/",
