@@ -6,15 +6,11 @@ import { PublicKey } from "@solana/web3.js";
 
 interface SetPayoutProps {
   onClose: () => void;
-  planType: "locked" | "flexible";
   onPlanCreated: () => void;
 }
 
-const SetPayout: React.FC<SetPayoutProps> = ({
-  onClose,
-  planType,
-  onPlanCreated,
-}) => {
+const SetPayout: React.FC<SetPayoutProps> = ({ onClose, onPlanCreated }) => {
+  const [planType, setPlanType] = useState<"locked" | "flexible">("locked");
   const [payoutMethod, setPayoutMethod] = useState("crypto");
   const [name, setName] = useState("");
   const [receivedAmount, setReceivedAmount] = useState("500");
@@ -232,14 +228,9 @@ const SetPayout: React.FC<SetPayoutProps> = ({
         </svg>
       </button>
       <div className="w-full flex justify-between items-center">
-        <h2 className="text-xl font-medium">
-          Set Payout for {planType.charAt(0).toUpperCase() + planType.slice(1)}{" "}
-          Plan
-        </h2>
+        <h2 className="text-xl font-medium">Set Payout for Stream Vault</h2>
       </div>
-
       {error && <p className="text-red-500 text-sm">{error}</p>}
-
       <div className="w-full flex flex-col gap-2">
         <label className="text-sm text-gray-400">Name of Vault</label>
         <input
@@ -367,6 +358,27 @@ const SetPayout: React.FC<SetPayoutProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+      <div className="w-full flex flex-col gap-2">
+        <label className="text-sm text-gray-400">Vault Type</label>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setPlanType("locked")}
+            className={`p-2 rounded-full px-8 bg-[#252525] ${
+              planType === "locked" ? "opacity-100" : "opacity-50"
+            }`}
+          >
+            Locked
+          </button>
+          <button
+            onClick={() => setPlanType("flexible")}
+            className={`p-2 rounded-full px-8 bg-[#252525] ${
+              planType === "flexible" ? "opacity-100" : "opacity-50"
+            }`}
+          >
+            Flexible
+          </button>
+        </div>
+      </div>
 
       <div className="w-full flex flex-col gap-2">
         <label className="text-sm text-gray-400">Recurrent Payout ($)</label>

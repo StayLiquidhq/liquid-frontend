@@ -9,15 +9,14 @@ interface CreatePlanProps {
 }
 
 const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
-  const [selectedPlan, setSelectedPlan] = useState<
-    "locked" | "flexible" | "target" | null
-  >(null);
+  const [selectedPlan, setSelectedPlan] = useState<"stream" | "target" | null>(
+    null
+  );
 
-  if (selectedPlan === "locked" || selectedPlan === "flexible") {
+  if (selectedPlan === "stream") {
     return (
       <SetPayout
         onClose={() => setSelectedPlan(null)}
-        planType={selectedPlan}
         onPlanCreated={onPlanCreated}
       />
     );
@@ -61,43 +60,22 @@ const CreatePlan: React.FC<CreatePlanProps> = ({ onClose, onPlanCreated }) => {
       </div>
 
       <div
-        onClick={() => setSelectedPlan("locked")}
+        onClick={() => setSelectedPlan("stream")}
         className="flex p-3 items-start gap-[10px] self-stretch squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] cursor-pointer"
       >
         <div className="flex p-2 justify-center items-center squircle squircle-[6px] squircle-smooth-xl squircle-[#08F]">
           <Image
             src="/white-lock.svg"
-            alt="Locked Vault"
+            alt="Stream Vault"
             width={72}
             height={72}
           />
         </div>
         <div className="flex flex-col">
-          <h3 className="text-lg font-medium">Locked Vault</h3>
+          <h3 className="text-lg font-medium">Stream Vault</h3>
           <p className="text-sm text-gray-400">
-            Deposit, set how much you want to receive, when and where. You can't
-            break this vault or your rules, can only change the payout wallet or
-            account,{" "}
-            <a href="#" className="text-blue-400">
-              learn more
-            </a>
-          </p>
-        </div>
-      </div>
-
-      <div
-        onClick={() => setSelectedPlan("flexible")}
-        className="flex p-3 items-start gap-[10px] self-stretch squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] cursor-pointer"
-      >
-        <div className="flex p-2 justify-center items-center squircle squircle-[6px] squircle-smooth-xl squircle-[#22C55E]">
-          <Image src="/Open.svg" alt="Flexible Vault" width={72} height={72} />
-        </div>
-        <div className="flex flex-col">
-          <h3 className="text-lg font-medium">Flexible Vault</h3>
-          <p className="text-sm text-gray-400">
-            Deposit, set amount you want to receive, when and where. You can
-            change payout wallet or account and break this vault with a 5% break
-            fee,{" "}
+            Deposit, set how much you want to receive, when and where. You can
+            choose between a locked or flexible vault.{" "}
             <a href="#" className="text-blue-400">
               learn more
             </a>

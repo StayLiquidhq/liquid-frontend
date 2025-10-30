@@ -80,59 +80,61 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <meta name="apple-mobile-web-app-title" content="Liquid" />
-      {/* Organization & WebSite JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: "Liquid",
-            url: "https://savewithliquid.com/",
-            logo: "https://savewithliquid.com/liquid-twitter.png",
-            sameAs: ["https://www.twitter.com/", "https://www.linkedin.com/"],
-          }),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            name: "Liquid",
-            url: "https://savewithliquid.com/",
-            potentialAction: {
-              "@type": "SearchAction",
-              target: "https://savewithliquid.com/?q={search_term_string}",
-              "query-input": "required name=search_term_string",
-            },
-          }),
-        }}
-      />
-      {/* WebApplication JSON-LD to explain the product to crawlers/LLMs */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            name: "Liquid",
-            applicationCategory: "FinanceApplication",
-            operatingSystem: "Web",
-            url: "https://savewithliquid.com/",
-            description:
-              "Liquid holds big income events (salary, gigs, windfalls) and streams money back to you on a daily, weekly or monthly schedule so you don’t overspend at once.",
-            featureList: [
-              "Income streaming schedules (daily, weekly, monthly)",
-              "Vaults for goals (locked, flexible, target)",
-              "Transparent transactions and payout editing",
-              "Mobile-first, distraction-minimizing UI",
-            ],
-          }),
-        }}
-      />
+      <head>
+        <meta name="apple-mobile-web-app-title" content="Liquid" />
+        {/* Organization & WebSite JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Liquid",
+              url: "https://savewithliquid.com/",
+              logo: "https://savewithliquid.com/liquid-twitter.png",
+              sameAs: ["https://www.twitter.com/", "https://www.linkedin.com/"],
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Liquid",
+              url: "https://savewithliquid.com/",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "https://savewithliquid.com/?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          }}
+        />
+        {/* WebApplication JSON-LD to explain the product to crawlers/LLMs */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Liquid",
+              applicationCategory: "FinanceApplication",
+              operatingSystem: "Web",
+              url: "https://savewithliquid.com/",
+              description:
+                "Liquid holds big income events (salary, gigs, windfalls) and streams money back to you on a daily, weekly or monthly schedule so you don’t overspend at once.",
+              featureList: [
+                "Income streaming schedules (daily, weekly, monthly)",
+                "Vaults for goals (locked, flexible, target)",
+                "Transparent transactions and payout editing",
+                "Mobile-first, distraction-minimizing UI",
+              ],
+            }),
+          }}
+        />
+      </head>
       <body className={`${onest.className} antialiased`}>
         <SquircleProvider>
           <ToastProvider>{children}</ToastProvider>
