@@ -19,7 +19,7 @@
     "@vercel/analytics": "^1.5.0",
     "framer-motion": "^12.23.12",
     "i": "^0.3.7",
-    "next": "15.5.2",
+    "next": "15.5.7",
     "npm": "^11.5.2",
     "qrcode.react": "^4.2.0",
     "react": "19.1.0",
