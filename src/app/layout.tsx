@@ -139,7 +139,9 @@ export default function RootLayout({
         <SquircleProvider>
           <ToastProvider>{children}</ToastProvider>
           <GoogleAnalytics gaId="G-NFBESZD60N" />
-          <Analytics />
+          {(process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.VERCEL) && (
+            <Analytics />
+          )}
         </SquircleProvider>
       </body>
     </html>
