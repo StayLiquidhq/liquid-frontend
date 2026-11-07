@@ -354,71 +354,70 @@ const SavingsPage = () => {
   }, [user]);
 
   useEffect(() => {
-    const fetchAllHistories = async () => {
-      if (!wallets.length) return;
+    const activeWallet = wallets[activeWalletIndex];
 
-      setTransactionsError(null);
+    if (!user || !activeWallet) {
+      if (wallets.length === 0 && isInitialTransactionsLoading) {
+        setIsInitialTransactionsLoading(false);
+        setTransactions({});
+      }
+      return;
+    }
 
+    let isMounted = true;
+
+    const fetchActiveHistory = async () => {
       const supabase = createClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (session) {
-        try {
-          const transactionPromises = wallets.map((wallet) =>
-            fetch(
-              `${process.env.NEXT_PUBLIC_BASE_URL}/api/transactions/fetch`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${session.access_token}`,
-                },
-                body: JSON.stringify({ wallet_id: wallet.wallet_id }),
-              }
-            ).then((res) => {
-              if (!res.ok) {
-                return res.json().then((errorData) => {
-                  throw new Error(
-                    errorData.error ||
-                      `Failed to fetch data for wallet ${wallet.wallet_id}`
-                  );
-                });
-              }
-              return res.json();
-            })
-          );
+      if (!session) return;
 
-          const results = await Promise.all(transactionPromises);
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/transactions/fetch`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ wallet_id: activeWallet.wallet_id }),
+          }
+        );
 
-          const newTransactions: { [walletId: string]: any[] } = {};
-          results.forEach((result, index) => {
-            newTransactions[wallets[index].wallet_id] = result.transactions;
-          });
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to fetch transactions");
+        }
 
-          setTransactions(newTransactions);
-        } catch (err: any) {
+        const result = await response.json();
+
+        if (isMounted) {
+          setTransactions((prev) => ({
+            ...prev,
+            [activeWallet.wallet_id]: result.transactions || [],
+          }));
+          setTransactionsError(null);
+        }
+      } catch (err: any) {
+        if (isMounted) {
           setTransactionsError(err.message);
-          showToast("Could not load transaction history.", "error");
+        }
+      } finally {
+        if (isMounted) {
+          setIsInitialTransactionsLoading(false);
         }
       }
     };
 
-    if (user && wallets.length > 0) {
-      if (isInitialTransactionsLoading) {
-        fetchAllHistories().finally(() =>
-          setIsInitialTransactionsLoading(false)
-        );
-      } else {
-        fetchAllHistories();
-      }
-    } else if (user && wallets.length === 0 && isInitialTransactionsLoading) {
-      // No wallets available: stop the initial loading spinner and clear histories
-      setIsInitialTransactionsLoading(false);
-      setTransactions({});
-    }
-  }, [user, wallets, isInitialTransactionsLoading]);
+    fetchActiveHistory();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user, activeWalletIndex, wallets, refreshWallets, isInitialTransactionsLoading]);
 
   const handlePlanCreated = () => {
     setShowCreatePlan(false);
