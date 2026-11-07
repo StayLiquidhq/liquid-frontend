@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { PublicKey } from "@solana/web3.js";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "@/app/toast-provider";
+import { isValidAddressForNetwork, WalletNetwork } from "@/utils/wallet/address";
 
 interface Plan {
   id: string;
@@ -25,6 +25,7 @@ interface Plan {
   last_payout_date: string | null;
   next_payout_date: string | null;
   status: string;
+  chain: string | null;
 }
 
 interface EditPayoutProps {
@@ -46,23 +47,14 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
   const [isValidAddress, setIsValidAddress] = useState(true);
   const { showToast } = useToast();
 
-  const isValidSolanaAddress = (address: string): boolean => {
-    const trimmed = address.trim();
-    if (trimmed.length === 0) return true; // do not show error on empty input
-    try {
-      const pubkey = new PublicKey(trimmed);
-      return pubkey.toBase58() === trimmed;
-    } catch {
-      return false;
-    }
-  };
+  const network: WalletNetwork = plan?.chain === "base" ? "base" : "solana";
 
   useEffect(() => {
     if (plan) {
       setPayoutMethod(plan.payout_method === "fiat" ? "fiat" : "crypto");
       const initialAddress = plan.payout_wallet_address || "";
       setWalletAddress(initialAddress);
-      setIsValidAddress(isValidSolanaAddress(initialAddress));
+      setIsValidAddress(isValidAddressForNetwork(initialAddress, network));
       setAccountNumber(plan.payout_account_number || "");
       setAccountName(plan.account_name || "");
       setBankName(plan.bank_name || "");
@@ -137,7 +129,12 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
 
       if (payoutMethod === "crypto") {
         if (!isValidAddress) {
-          showToast("Please enter a valid Solana wallet address.", "error");
+          showToast(
+            `Please enter a valid ${
+              network === "base" ? "Base" : "Solana"
+            } wallet address.`,
+            "error"
+          );
           setIsLoading(false);
           return;
         }
@@ -274,7 +271,7 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
             className="w-full flex flex-col gap-2"
           >
             <label className="text-sm text-gray-400">
-              Payout Wallet Address (Solana)
+              Payout Wallet Address ({network === "base" ? "Base" : "Solana"})
             </label>
             <input
               type="text"
@@ -282,7 +279,7 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
               onChange={(e) => {
                 const address = e.target.value;
                 setWalletAddress(address);
-                setIsValidAddress(isValidSolanaAddress(address));
+                setIsValidAddress(isValidAddressForNetwork(address, network));
               }}
               className={`w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white font-mono ${
                 isValidAddress
@@ -359,6 +356,26 @@ const EditPayout: React.FC<EditPayoutProps> = ({ onClose, plan }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {network === "solana" && (
+        <div className="w-full flex items-center gap-2 p-3 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
+          <Image src="/Info.svg" alt="Info" width={24} height={24} />
+          <span className="text-sm text-gray-400">
+            A small gas fee (~0.005 - 0.01 SOL) is required in your wallet for
+            all Solana transactions and payouts.
+          </span>
+        </div>
+      )}
+
+      {network === "base" && (
+        <div className="w-full flex items-center gap-2 p-3 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
+          <Image src="/Info.svg" alt="Info" width={24} height={24} />
+          <span className="text-sm text-gray-400">
+            A small gas fee of about $2 in ETH is required for all Base
+            transactions.
+          </span>
+        </div>
+      )}
 
       {(plan.plan_type === "locked" || plan.plan_type === "flexible") && (
         <>

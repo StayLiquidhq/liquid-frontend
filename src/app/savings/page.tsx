@@ -26,6 +26,7 @@ interface Wallet {
   name: string;
   icon: string;
   coinImage: string;
+  chain?: "solana" | "base";
   plan_type: "locked" | "flexible" | "target";
   plan_id: string;
 }
@@ -50,6 +51,7 @@ interface Plan {
   last_payout_date: string | null;
   next_payout_date: string | null;
   status: string;
+  chain: string | null;
 }
 
 const SavingsPage = () => {
@@ -270,6 +272,88 @@ const SavingsPage = () => {
   }, [user, refreshWallets]);
 
   useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+    let controller: AbortController | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const scheduleRefresh = () => {
+      if (refreshTimer) return;
+
+      refreshTimer = setTimeout(() => {
+        refreshTimer = null;
+        setRefreshWallets((prev) => !prev);
+      }, 500);
+    };
+
+    const connect = async () => {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (cancelled || !session) return;
+
+      controller = new AbortController();
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/wallets/events`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            signal: controller.signal,
+          }
+        );
+
+        if (!response.ok || !response.body) {
+          throw new Error("Wallet events stream unavailable");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (!cancelled) {
+          const { value, done } = await reader.read();
+
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          const frames = buffer.split("\n\n");
+          buffer = frames.pop() ?? "";
+
+          for (const frame of frames) {
+            if (frame.includes("data:")) scheduleRefresh();
+          }
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Wallet events stream error:", error);
+        }
+      }
+
+      if (!cancelled) {
+        reconnectTimer = setTimeout(connect, 5000);
+      }
+    };
+
+    connect();
+
+    return () => {
+      cancelled = true;
+      controller?.abort();
+
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (refreshTimer) clearTimeout(refreshTimer);
+    };
+  }, [user]);
+
+  useEffect(() => {
     const fetchAllHistories = async () => {
       if (!wallets.length) return;
 
@@ -329,10 +413,6 @@ const SavingsPage = () => {
       } else {
         fetchAllHistories();
       }
-
-      const intervalId = setInterval(fetchAllHistories, 120000);
-
-      return () => clearInterval(intervalId);
     } else if (user && wallets.length === 0 && isInitialTransactionsLoading) {
       // No wallets available: stop the initial loading spinner and clear histories
       setIsInitialTransactionsLoading(false);
@@ -484,6 +564,7 @@ const SavingsPage = () => {
                 balance={wallet.balance}
                 icon={iconMap[wallet.plan_type]}
                 coinImage="/white-3d-coin.svg"
+                chain={wallet.chain}
               />
             ))}
             <motion.div

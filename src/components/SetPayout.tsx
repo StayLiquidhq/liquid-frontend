@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "@/app/toast-provider";
-import { PublicKey } from "@solana/web3.js";
+import { isValidAddressForNetwork, WalletNetwork } from "@/utils/wallet/address";
+import NetworkSelector from "./NetworkSelector";
 
 interface SetPayoutProps {
   onClose: () => void;
@@ -11,6 +12,7 @@ interface SetPayoutProps {
 
 const SetPayout: React.FC<SetPayoutProps> = ({ onClose, onPlanCreated }) => {
   const [planType, setPlanType] = useState<"locked" | "flexible">("locked");
+  const [network, setNetwork] = useState<WalletNetwork>("solana");
   const [payoutMethod, setPayoutMethod] = useState("crypto");
   const [name, setName] = useState("");
   const [receivedAmount, setReceivedAmount] = useState("500");
@@ -31,17 +33,6 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose, onPlanCreated }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isValidAddress, setIsValidAddress] = useState(true);
-
-  const isValidSolanaAddress = (address: string): boolean => {
-    const trimmed = address.trim();
-    if (trimmed.length === 0) return true; // don't flag empty input
-    try {
-      const pubkey = new PublicKey(trimmed);
-      return pubkey.toBase58() === trimmed;
-    } catch {
-      return false;
-    }
-  };
 
   const supabase = createClient();
   const { showToast } = useToast();
@@ -126,6 +117,7 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose, onPlanCreated }) => {
       frequency: normalizedFrequency,
       payout_time: payoutTimeToSend,
       payout_method: payoutMethod,
+      chain: network,
     };
 
     if (payoutMethod === "crypto") {
@@ -135,7 +127,11 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose, onPlanCreated }) => {
         return;
       }
       if (!isValidAddress) {
-        setError("Please enter a valid Solana wallet address.");
+        setError(
+          `Please enter a valid ${
+            network === "base" ? "Base" : "Solana"
+          } wallet address.`
+        );
         setIsLoading(false);
         return;
       }
@@ -242,6 +238,14 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose, onPlanCreated }) => {
         />
       </div>
 
+      <NetworkSelector
+        value={network}
+        onChange={(next) => {
+          setNetwork(next);
+          setIsValidAddress(isValidAddressForNetwork(walletAddress, next));
+        }}
+      />
+
       <div className="flex gap-2">
         <button
           onClick={() => setPayoutMethod("crypto")}
@@ -272,7 +276,7 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose, onPlanCreated }) => {
             className="w-full flex flex-col gap-2"
           >
             <label className="text-sm text-gray-400">
-              Payout Wallet Address (Solana)
+              Payout Wallet Address ({network === "base" ? "Base" : "Solana"})
             </label>
             <input
               type="text"
@@ -280,7 +284,7 @@ const SetPayout: React.FC<SetPayoutProps> = ({ onClose, onPlanCreated }) => {
               onChange={(e) => {
                 const address = e.target.value;
                 setWalletAddress(address);
-                setIsValidAddress(isValidSolanaAddress(address));
+                setIsValidAddress(isValidAddressForNetwork(address, network));
               }}
               placeholder="Enter wallet address"
               className={`w-full p-4 text-lg squircle squircle-[18px] squircle-smooth-xl squircle-[#252525] text-white font-mono ${

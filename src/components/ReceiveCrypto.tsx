@@ -11,6 +11,9 @@ interface ReceiveCryptoProps {
 const ReceiveCrypto: React.FC<ReceiveCryptoProps> = ({ onClose, wallet }) => {
   const [isCopied, setIsCopied] = useState(false);
 
+  const networkLabel = wallet?.chain === "base" ? "Base" : "Solana";
+  const networkLogo = wallet?.chain === "base" ? "/base.jpeg" : "/solana.png";
+
   const handleCopy = () => {
     navigator.clipboard.writeText(wallet.address);
     setIsCopied(true);
@@ -29,7 +32,16 @@ const ReceiveCrypto: React.FC<ReceiveCryptoProps> = ({ onClose, wallet }) => {
   return (
     <div className="flex w-[380px] p-6 flex-col items-center gap-4 squircle squircle-[36px] squircle-smooth-xl squircle-[#1A1A1A] text-white">
       <div className="w-full flex justify-between items-center">
-        <h2 className="text-xl font-medium">Solana Wallet Address</h2>
+        <div className="flex items-center gap-2">
+          <Image
+            src={networkLogo}
+            alt={`${networkLabel} logo`}
+            width={24}
+            height={24}
+            className="rounded-full object-cover"
+          />
+          <h2 className="text-xl font-medium">{networkLabel} Wallet Address</h2>
+        </div>
       </div>
 
       <div className="w-full flex items-center justify-between p-3 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
@@ -60,9 +72,27 @@ const ReceiveCrypto: React.FC<ReceiveCryptoProps> = ({ onClose, wallet }) => {
       <div className="w-full flex items-center gap-2 p-3 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
         <Image src="/Info.svg" alt="Info" width={24} height={24} />
         <span className="text-sm text-gray-400">
-          Only Send USDC on the Solana Chain
+          Deposit USDC on the {networkLabel} Chain for your savings.
         </span>
       </div>
+
+      {wallet?.chain === "base" ? (
+        <div className="w-full flex items-center gap-2 p-3 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
+          <Image src="/Info.svg" alt="Info" width={24} height={24} />
+          <span className="text-sm text-gray-400">
+            A small gas fee of about $2 in ETH is also required in this wallet
+            for Base transactions and payouts.
+          </span>
+        </div>
+      ) : (
+        <div className="w-full flex items-center gap-2 p-3 squircle squircle-[18px] squircle-smooth-xl squircle-[#252525]">
+          <Image src="/Info.svg" alt="Info" width={24} height={24} />
+          <span className="text-sm text-gray-400">
+            A small gas fee (~0.005 - 0.01 SOL) is also required in this wallet
+            for Solana transactions and payouts.
+          </span>
+        </div>
+      )}
     </div>
   );
 };

@@ -2,12 +2,14 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { itemVariants } from "@/app/savings/animation";
 import { useState } from "react";
+import { WalletNetwork } from "@/utils/wallet/address";
 
 interface WalletCardProps {
   name: string;
   balance: string;
   icon: string;
   coinImage: string;
+  chain?: WalletNetwork;
   isLast?: boolean;
 }
 
@@ -16,8 +18,12 @@ const WalletCard: React.FC<WalletCardProps> = ({
   balance,
   icon,
   coinImage,
+  chain,
 }) => {
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+
+  const networkLabel = chain === "base" ? "Base" : "Solana";
+  const networkLogo = chain === "base" ? "/base.jpeg" : "/solana.png";
 
   const toggleBalanceVisibility = () => {
     setIsBalanceVisible(!isBalanceVisible);
@@ -40,6 +46,18 @@ const WalletCard: React.FC<WalletCardProps> = ({
         <div className="flex items-center gap-2">
           <Image src={icon} alt="Wallet Icon" width={18} height={18} />
           <span className="text-sm">{name}</span>
+          {chain && (
+            <span className="flex items-center gap-1 px-2 py-[3px] rounded-full bg-[#2A2A2A] text-[10px] text-gray-300">
+              <Image
+                src={networkLogo}
+                alt={`${networkLabel} network`}
+                width={12}
+                height={12}
+                className="rounded-full object-cover"
+              />
+              {networkLabel}
+            </span>
+          )}
         </div>
         <Image
           src={

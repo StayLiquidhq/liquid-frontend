@@ -122,7 +122,11 @@ const BreakWallet: React.FC<BreakWalletProps> = ({
         </p>
         {signature && (
           <a
-            href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`}
+            href={
+              signature.startsWith("0x")
+                ? `https://basescan.org/tx/${signature}`
+                : `https://solscan.io/tx/${signature}`
+            }
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-400 hover:underline"
